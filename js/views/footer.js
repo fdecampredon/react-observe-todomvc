@@ -22,6 +22,11 @@ var app = app || {};
         },
         
         componentWillMount: function () {
+            
+            
+            // We injec the model by global references here
+            // However in more sophisticated architecture, 
+            // we could use some kind of IOC container
             this.model = app.footerModel;
         },
         

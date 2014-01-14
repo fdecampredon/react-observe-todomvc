@@ -9,6 +9,8 @@ var app = app || {};
 
     var List = ObserveUtils.List;
     
+    // simple function that will observe a list
+    // and all object contained in this list (if they are observable)
     function listObserve(list, handler) {
         function objectObserver(changes) {
             handler(changes);
@@ -139,6 +141,7 @@ var app = app || {};
             };
         },
         
+        //Observe a list and all objects in this list
         deepObserve: function (object, handler) {
             if (object instanceof List) {
                 return listObserve(object, handler);
@@ -151,6 +154,9 @@ var app = app || {};
                 };
             }
         },
+        
+        // A simple mixin that will 'observe' objects returned by the 'getObserveds' method of 
+        // components and forceUpdate if they dispatch changes
         ObserveMixin : {
             observeObjects: function () {
                 var self = this;
@@ -186,6 +192,9 @@ var app = app || {};
                 }
             },
             
+            // We consider that components should react to changes dispatched by Object.observe
+            // or to props change, if we want to track properties of objects in our 'props'
+            // we just observe them
             shouldComponentUpdate: function(nextProps, nextState) {
                 return !shallowEqual(this.props, nextProps) ||
                        !shallowEqual(this.state, nextState);

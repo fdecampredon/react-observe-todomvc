@@ -27,6 +27,9 @@ var app = app || {};
         },
         
         componentWillMount: function () {
+            // We inject the model by global references here
+            // However in more sophisticated architecture, 
+            // we could use some kind of IOC container
             this.model = app.appModel;
         },
         

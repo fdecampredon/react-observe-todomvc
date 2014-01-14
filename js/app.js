@@ -22,6 +22,9 @@ var app = app || {};
         return Utils.assign(new Todo(), todo);
     }));
     
+    
+    
+    // A nice way to listen any changes in our collections and save it
     Utils.deepObserve(todos, function () {
         Utils.store('react-observe-todos', todos);
     });
