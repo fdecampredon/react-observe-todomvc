@@ -20,7 +20,7 @@ var app = app || {};
     app.TodoItem = React.createClass({
         mixins: [Utils.ObserveMixin],
         
-        getObserveds: function () {
+        getObservedObjects: function () {
             return [this.props.todo];
         },
         

@@ -17,7 +17,7 @@ var app = app || {};
         
         mixins: [Utils.ObserveMixin],
         
-        getObserveds: function () {
+        getObservedObjects: function () {
             return [this.model];
         },
         

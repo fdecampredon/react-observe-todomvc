@@ -134,11 +134,6 @@ var app = app || {};
             } else {
                 Object.observe(object, handler);
             }
-            return {
-                dispose: function () {
-                    Object.unobserve(object, handler);
-                }
-            };
         },
         
         //Observe a list and all objects in this list
@@ -149,45 +144,24 @@ var app = app || {};
                 Object.observe(object, handler);
                 return {
                     dispose: function () {
-                        Object.unboserve(object, handler);
+                        Object.unobserve(object, handler);
                     }
                 };
             }
         },
         
-        // A simple mixin that will 'observe' objects returned by the 'getObserveds' method of 
+        // A simple mixin that will 'observe' objects returned by the 'getObservedObjects' method of 
         // components and forceUpdate if they dispatch changes
         ObserveMixin : {
-            observeObjects: function () {
-                var self = this;
-                this.onObservedChange = function (changes) {
-                    self.forceUpdate();
-                };
-                if (typeof this.getObserveds === 'function') {
-                    this.observeds = this.getObserveds();
-                    this.observers = this.getObserveds().map(function (object) {
-                        return Utils.observe(object, this.onObservedChange);
-                    }, this);
-                }
-            },
-            
-            unobserveObjects: function () {
-                if (this.observers) {
-                    this.observers.forEach(function (observer) {
-                        observer.dispose();
-                    });
-                } 
-            },
-            
             componentDidMount: function () {
-                this.observeObjects();
+                this._observeObjects();
             },
             
             componentDidUpdate: function () {
-                if (typeof this.getObserveds === 'function') {
-                    if (!shallowEqual(this.getObserveds(), this.observeds)) {
-                        this.unobserveObjects();
-                        this.observeObjects();
+                if (typeof this.getObservedObjects === 'function') {
+                    if (!shallowEqual(this.getObservedObjects(), this._observedObjects)) {
+                        this._unobserveObjects();
+                        this._observeObjects();
                     }
                 }
             },
@@ -201,8 +175,29 @@ var app = app || {};
             },
             
             componentWillUnmount: function () {
-                this.unobserveObjects();
-            }
+                this._unobserveObjects();
+            },
+            
+            _observedObjectsChangeHandler : function () {
+                this.forceUpdate();
+            },
+            
+            _observeObjects: function () {
+                if (typeof this.getObservedObjects === 'function') {
+                    this._observedObjects = this.getObservedObjects();
+                    this._observedObjects.forEach(function (object) {
+                        Utils.observe(object, this._observedObjectsChangeHandler);
+                    }, this);
+                }
+            },
+            
+            _unobserveObjects: function () {
+                if (this._observedObjects) {
+                    this._observedObjects.forEach(function (object) {
+                        Object.unobserve(object, this._observedObjectsChangeHandler);
+                    }, this);
+                } 
+            },
         }
     };
     
