@@ -1,0 +1,12 @@
+{
+  "name": "react-observe-todomvc",
+  "version": "0.0.0",
+  "dependencies": {
+    "todomvc-common": "~0.1.9",
+    "observe-shim": "~0.4.0",
+    "observe-utils": "~0.3.2",
+    "react": "~0.8.0",
+    "director": "~1.2.2",
+    "setimmediate": "~1.0.1"
+  }
+}
