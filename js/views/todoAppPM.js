@@ -21,8 +21,6 @@ var app = app || {};
         });
     }
     
-    
-    
     function TodoAppPM(todos) {
         this.todos = todos;
         this.editing = null;

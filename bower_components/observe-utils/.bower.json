@@ -1,0 +1,23 @@
+{
+  "name": "observe-utils",
+  "version": "0.3.2",
+  "main": "lib/observe-utils.js",
+  "devDependencies": {
+    "expect": "~0.2.0",
+    "sinon": "http://sinonjs.org/releases/sinon-1.6.0.js",
+    "observe-shim": "~0.4.0",
+    "mocha": "~1.8.1",
+    "es5-shim": "~2.0.8"
+  },
+  "homepage": "https://github.com/KapIT/observe-utils",
+  "_release": "0.3.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.3.2",
+    "commit": "4a9d0140e2dfcb15e85f9d5951692045265fb391"
+  },
+  "_source": "git://github.com/KapIT/observe-utils.git",
+  "_target": "~0.3.2",
+  "_originalSource": "observe-utils",
+  "_direct": true
+}
