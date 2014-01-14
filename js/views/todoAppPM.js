@@ -15,9 +15,18 @@ var app = app || {};
         Todo = app.Todo;
     
     
+    function updateAllCompleted(todoAppPM) {
+        todoAppPM.allCompleted = todoAppPM.todos.every(function (todo) {
+            return todo.completed;
+        });
+    }
+    
+    
+    
     function TodoAppPM(todos) {
         this.todos = todos;
         this.editing = null;
+        updateAllCompleted(this);
     }
     
     Object.defineProperty(TodoAppPM.prototype, 'shownTodos', {
@@ -34,6 +43,7 @@ var app = app || {};
             }, this);
         }
     });
+    
         
     TodoAppPM.prototype.createTodo = function (title) {
         var todo = new Todo();
@@ -56,17 +66,19 @@ var app = app || {};
     
     TodoAppPM.prototype.toggle = function (todo) {
         todo.completed = !todo.completed;
+        updateAllCompleted(this);
     };
     
     TodoAppPM.prototype.toggleAll = function (toggle) {
         this.todos.forEach(function (todo) {
             todo.completed = toggle;
         });
+        this.allCompleted = toggle;
     };
     
     
     if (!window.nativeObjectObserve) {
-        ObserveUtils.defineObservableProperties(TodoAppPM.prototype, 'editing', 'todos', 'nowShowing');
+        ObserveUtils.defineObservableProperties(TodoAppPM.prototype, 'editing', 'todos', 'nowShowing', 'allCompleted');
     }
     
     app.TodoAppPM = TodoAppPM;

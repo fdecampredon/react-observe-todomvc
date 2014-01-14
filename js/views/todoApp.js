@@ -80,7 +80,7 @@ var app = app || {};
                             id: 'toggle-all',
                             type: 'checkbox',
                             onChange: this.toggleAll,
-                            checked: this.model.activeTodoCount === 0
+                            checked: this.model.allCompleted
                         }
                     ),
                     html.ul(
