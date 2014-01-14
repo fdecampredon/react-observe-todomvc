@@ -55,8 +55,8 @@ var app = app || {};
     React.renderComponent(TodoApp(), document.getElementById('todoapp'));
     React.renderComponent(html.div(
         null,
-        html.p('Double-click to edit a todo'),
-        html.p('Created by ', html.a({href: 'http://github.com/petehunt/'}, 'petehunt')),
+        html.p(null, 'Double-click to edit a todo'),
+        html.p(null, 'Created by ', html.a({href: 'http://github.com/petehunt/'}, 'petehunt')),
         html.p(null, 'Part of ', html.a({href: 'http://todomvc.com'}, 'TodoMVC'))
     ), document.getElementById('info'));
     
