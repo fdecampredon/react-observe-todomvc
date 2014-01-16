@@ -1,0 +1,32 @@
+{
+  "name": "react-observe-todomvc",
+  "version": "0.0.0",
+  "description": "TodoMVC implementation built on top of React and Object.observe with server-side pre-rendering",
+  "main": "lib/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fdecampredon/react-observe-todomvc.git"
+  },
+  "author": "François de Campredon",
+  "license": "Apache License V2",
+  "bugs": {
+    "url": "https://github.com/fdecampredon/react-observe-todomvc/issues"
+  },
+  "homepage": "https://github.com/fdecampredon/react-observe-todomvc",
+  "dependencies": {
+    "observe-shim": "~0.4.0",
+    "observe-utils": "~0.3.2",
+    "react": "~0.8.0",
+    "director": "~1.2.2",
+    "setimmediate": "~1.0.1",
+    "express": "~3.4.8"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "browserify": "~3.20.0",
+    "grunt-browserify": "~1.3.0"
+  }
+}
