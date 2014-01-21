@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/fdecampredon/react-observe-todomvc",
   "dependencies": {
-    "observe-shim": "~0.4.0",
+    "observe-shim": "~0.4.1",
     "observe-utils": "~0.3.2",
     "react": "~0.8.0",
     "director": "~1.2.2",
