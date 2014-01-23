@@ -1,11 +1,11 @@
 
 import React = require('react/addons');
-import Utils = require('../utils/utils');
+import ObserveUtils =  require('observe-utils');
 import ObserverDecorator = require('../utils/observe-decorator');
 import ReactTypescript = require('../utils/react-typescript');
+import ReactControls = require('../utils/react-controller');
 import Todo = require('../model/todo');
-import registry = require('../registry');
-import TodoAppPM = require('./todoAppPM');
+import routes = require('../routes');
 import todoItem = require('./todoItem');
 import footer = require('./footer');
 
@@ -15,18 +15,20 @@ var TodoFooter = footer.TodoFooter;
 var html = React.DOM;
 var ENTER_KEY = 13;   
 
-export class TodoAppClass extends ReactTypescript.ReactComponentBase<{}, void> {
-    private model: TodoAppPM;
-    getObservedObjects() {
-        return [this.model, this.model.todos];
-    }
+export class TodoAppProps {
+    todos: ObserveUtils.List<Todo>;
+    nowShowing: string;
+}
+
+export class TodoAppState {
+    editing: string;
+}
+
+export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProps, TodoAppState> {
     
-    componentWillMount() {
-        // We inject the model by global references here
-        // However in more sophisticated architecture, 
-        // we could use some kind of IOC container
-        this.model = registry.appModel;
-    }
+    
+    onCreate: (title: string) => void;
+    onToggleAll: (check: boolean) => void;
     
     getNewField() {
         return (<HTMLInputElement>this.refs['newField'].getDOMNode());
@@ -43,7 +45,7 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<{}, void> {
 
         var val = this.getNewField().value.trim();
         if (val) {
-            this.model.createTodo(val);
+            this.onCreate(val);
             this.getNewField().value = '';
         }
 
@@ -52,25 +54,44 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<{}, void> {
     
     toggleAll(event: React.FormEvent) {
         var checked: boolean = (<HTMLInputElement>event.target).checked;
-        this.model.toggleAll(checked);
+        this.onToggleAll(checked);
     }
     
     render() {
         var footer: footer.TodoFooterClass = null,
             main: React.ReactComponent<any, any> = null,
-            todos = this.model.todos;
+            todos = this.props.todos,
+            shownTodos = todos.filter((todo) => {
+                switch (this.props.nowShowing) {
+                    case routes.ACTIVE_TODOS:
+                        return !todo.completed;
+                    case routes.COMPLETED_TODOS:
+                        return todo.completed;
+                    default:
+                        return true;
+                }
+            });
 
-        var todoItems = this.model.shownTodos.map(function (todo) {
+        var todoItems = shownTodos.map(function (todo) {
             return TodoItem({
                 key: todo.id,
                 todo: todo,
-                editing: this.model.editing === todo.id,
+                editing: this.state.editing === todo.id,
             });
         }, this);
+        
+        var activeTodoCount = todos.reduce((accum: number, todo: Todo) => {
+            return todo.completed ? accum : accum + 1;
+        }, 0);
+        var completedCount = todos.length - activeTodoCount;
 
 
-        if (todos.length) {
-            footer = TodoFooter({ nowShowing: this.model.nowShowing });
+        if (activeTodoCount || completedCount) {
+            footer = TodoFooter({ 
+                nowShowing: this.props.nowShowing, 
+                activeTodoCount: activeTodoCount,
+                completedCount : completedCount
+            });
             main = html.section(
                 {id: 'main'},
                 html.input(
@@ -78,7 +99,7 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<{}, void> {
                         id: 'toggle-all',
                         type: 'checkbox',
                         onChange: this.toggleAll,
-                        checked: this.model.allCompleted
+                        checked: completedCount && !activeTodoCount
                     }
                 ),
                 html.ul(
@@ -106,5 +127,9 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<{}, void> {
     }
 }
 
-export var TodoApp = ReactTypescript.registerComponent<TodoAppClass, {}>(TodoAppClass, ObserverDecorator);
+export var TodoApp = ReactTypescript.registerComponent<TodoAppClass, TodoAppProps>(
+        TodoAppClass, 
+        ObserverDecorator, 
+        ReactControls.ControlledDecorator
+);
 

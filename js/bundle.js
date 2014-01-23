@@ -1,4 +1,59 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+
+process.nextTick = (function () {
+    var canSetImmediate = typeof window !== 'undefined'
+    && window.setImmediate;
+    var canPost = typeof window !== 'undefined'
+    && window.postMessage && window.addEventListener
+    ;
+
+    if (canSetImmediate) {
+        return function (f) { return window.setImmediate(f) };
+    }
+
+    if (canPost) {
+        var queue = [];
+        window.addEventListener('message', function (ev) {
+            var source = ev.source;
+            if ((source === window || source === null) && ev.data === 'process-tick') {
+                ev.stopPropagation();
+                if (queue.length > 0) {
+                    var fn = queue.shift();
+                    fn();
+                }
+            }
+        }, true);
+
+        return function nextTick(fn) {
+            queue.push(fn);
+            window.postMessage('process-tick', '*');
+        };
+    }
+
+    return function nextTick(fn) {
+        setTimeout(fn, 0);
+    };
+})();
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+}
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+
+},{}],2:[function(require,module,exports){
 
 
 //
@@ -718,61 +773,6 @@ Router.prototype.mount = function(routes, path) {
 
 
 }(typeof exports === "object" ? exports : window));
-},{}],2:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
-    }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
-    }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-}
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-
 },{}],3:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};//    Copyright 2012 Kap IT (http://www.kapit.fr/)
 //
@@ -2100,7 +2100,7 @@ if ('production' !== process.env.NODE_ENV) {
   module.exports = require('./ReactJSErrors').wrap(module.exports);
 }
 
-},{"./ReactJSErrors":5,"./lib/ReactWithAddons":77,"__browserify_process":2}],7:[function(require,module,exports){
+},{"./ReactJSErrors":5,"./lib/ReactWithAddons":77,"__browserify_process":1}],7:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -2264,7 +2264,7 @@ var CSSCore = {
 
 module.exports = CSSCore;
 
-},{"./invariant":115,"__browserify_process":2}],9:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],9:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -3534,7 +3534,7 @@ var DOMProperty = {
 
 module.exports = DOMProperty;
 
-},{"./invariant":115,"__browserify_process":2}],16:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],16:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -3704,7 +3704,7 @@ var DOMPropertyOperations = {
 
 module.exports = DOMPropertyOperations;
 
-},{"./DOMProperty":15,"./escapeTextForBrowser":101,"./memoizeStringOnly":123,"__browserify_process":2}],17:[function(require,module,exports){
+},{"./DOMProperty":15,"./escapeTextForBrowser":101,"./memoizeStringOnly":123,"__browserify_process":1}],17:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -3892,7 +3892,7 @@ var Danger = {
 
 module.exports = Danger;
 
-},{"./ExecutionEnvironment":27,"./createNodesFromMarkup":96,"./emptyFunction":100,"./getMarkupWrap":109,"./invariant":115,"./mutateHTMLNodeWithMarkup":128,"__browserify_process":2}],18:[function(require,module,exports){
+},{"./ExecutionEnvironment":27,"./createNodesFromMarkup":96,"./emptyFunction":100,"./getMarkupWrap":109,"./invariant":115,"./mutateHTMLNodeWithMarkup":128,"__browserify_process":1}],18:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -4379,7 +4379,7 @@ var EventListener = {
 
 module.exports = EventListener;
 
-},{"__browserify_process":2}],23:[function(require,module,exports){
+},{"__browserify_process":1}],23:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -4571,7 +4571,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = EventPluginHub;
 
-},{"./CallbackRegistry":11,"./EventPluginRegistry":24,"./EventPluginUtils":25,"./EventPropagators":26,"./ExecutionEnvironment":27,"./accumulate":91,"./forEachAccumulated":105,"./invariant":115,"__browserify_process":2}],24:[function(require,module,exports){
+},{"./CallbackRegistry":11,"./EventPluginRegistry":24,"./EventPluginUtils":25,"./EventPropagators":26,"./ExecutionEnvironment":27,"./accumulate":91,"./forEachAccumulated":105,"./invariant":115,"__browserify_process":1}],24:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -4810,7 +4810,7 @@ var EventPluginRegistry = {
 
 module.exports = EventPluginRegistry;
 
-},{"./invariant":115,"__browserify_process":2}],25:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],25:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -4997,7 +4997,7 @@ var EventPluginUtils = {
 
 module.exports = EventPluginUtils;
 
-},{"./EventConstants":21,"./invariant":115,"__browserify_process":2}],26:[function(require,module,exports){
+},{"./EventConstants":21,"./invariant":115,"__browserify_process":1}],26:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -5178,7 +5178,7 @@ var EventPropagators = {
 
 module.exports = EventPropagators;
 
-},{"./CallbackRegistry":11,"./EventConstants":21,"./accumulate":91,"./forEachAccumulated":105,"__browserify_process":2}],27:[function(require,module,exports){
+},{"./CallbackRegistry":11,"./EventConstants":21,"./accumulate":91,"./forEachAccumulated":105,"__browserify_process":1}],27:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -5339,7 +5339,7 @@ var LinkedValueMixin = {
 
 module.exports = LinkedValueMixin;
 
-},{"./invariant":115,"__browserify_process":2}],30:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],30:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -5726,7 +5726,7 @@ var ReactChildren = {
 
 module.exports = ReactChildren;
 
-},{"./PooledClass":31,"./invariant":115,"./traverseAllChildren":133,"__browserify_process":2}],34:[function(require,module,exports){
+},{"./PooledClass":31,"./invariant":115,"./traverseAllChildren":133,"__browserify_process":1}],34:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -6243,7 +6243,7 @@ var ReactComponent = {
 
 module.exports = ReactComponent;
 
-},{"./ReactComponentEnvironment":36,"./ReactCurrentOwner":38,"./ReactOwner":64,"./ReactUpdates":76,"./invariant":115,"./keyMirror":121,"./merge":124,"__browserify_process":2}],35:[function(require,module,exports){
+},{"./ReactComponentEnvironment":36,"./ReactCurrentOwner":38,"./ReactOwner":64,"./ReactUpdates":76,"./invariant":115,"./keyMirror":121,"./merge":124,"__browserify_process":1}],35:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -6385,7 +6385,7 @@ var ReactComponentBrowserEnvironment = {
 
 module.exports = ReactComponentBrowserEnvironment;
 
-},{"./ReactDOMIDOperations":43,"./ReactMarkupChecksum":59,"./ReactMount":60,"./ReactReconcileTransaction":68,"./getReactRootElementInContainer":111,"./invariant":115,"./mutateHTMLNodeWithMarkup":128,"__browserify_process":2}],36:[function(require,module,exports){
+},{"./ReactDOMIDOperations":43,"./ReactMarkupChecksum":59,"./ReactMount":60,"./ReactReconcileTransaction":68,"./getReactRootElementInContainer":111,"./invariant":115,"./mutateHTMLNodeWithMarkup":128,"__browserify_process":1}],36:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -7433,7 +7433,7 @@ var ReactCompositeComponent = {
 
 module.exports = ReactCompositeComponent;
 
-},{"./ReactComponent":34,"./ReactCurrentOwner":38,"./ReactErrorUtils":52,"./ReactOwner":64,"./ReactPerf":65,"./ReactPropTransferer":66,"./ReactUpdates":76,"./invariant":115,"./keyMirror":121,"./merge":124,"./mixInto":127,"./objMap":129,"__browserify_process":2}],38:[function(require,module,exports){
+},{"./ReactComponent":34,"./ReactCurrentOwner":38,"./ReactErrorUtils":52,"./ReactOwner":64,"./ReactPerf":65,"./ReactPropTransferer":66,"./ReactUpdates":76,"./invariant":115,"./keyMirror":121,"./merge":124,"./mixInto":127,"./objMap":129,"__browserify_process":1}],38:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -8112,7 +8112,7 @@ mixInto(ReactDOMComponent, ReactMultiChild.Mixin);
 
 module.exports = ReactDOMComponent;
 
-},{"./CSSPropertyOperations":10,"./DOMProperty":15,"./DOMPropertyOperations":16,"./ReactComponent":34,"./ReactEventEmitter":53,"./ReactMount":60,"./ReactMultiChild":62,"./ReactPerf":65,"./escapeTextForBrowser":101,"./invariant":115,"./keyOf":122,"./merge":124,"./mixInto":127,"__browserify_process":2}],42:[function(require,module,exports){
+},{"./CSSPropertyOperations":10,"./DOMProperty":15,"./DOMPropertyOperations":16,"./ReactComponent":34,"./ReactEventEmitter":53,"./ReactMount":60,"./ReactMultiChild":62,"./ReactPerf":65,"./escapeTextForBrowser":101,"./invariant":115,"./keyOf":122,"./merge":124,"./mixInto":127,"__browserify_process":1}],42:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -8341,7 +8341,7 @@ var ReactDOMIDOperations = {
 
 module.exports = ReactDOMIDOperations;
 
-},{"./CSSPropertyOperations":10,"./DOMChildrenOperations":14,"./DOMPropertyOperations":16,"./ReactMount":60,"./getTextContentAccessor":112,"./invariant":115,"__browserify_process":2}],44:[function(require,module,exports){
+},{"./CSSPropertyOperations":10,"./DOMChildrenOperations":14,"./DOMPropertyOperations":16,"./ReactMount":60,"./getTextContentAccessor":112,"./invariant":115,"__browserify_process":1}],44:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -8512,7 +8512,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMInput;
 
-},{"./DOMPropertyOperations":16,"./LinkedValueMixin":29,"./ReactCompositeComponent":37,"./ReactDOM":39,"./ReactMount":60,"./invariant":115,"./merge":124,"__browserify_process":2}],45:[function(require,module,exports){
+},{"./DOMPropertyOperations":16,"./LinkedValueMixin":29,"./ReactCompositeComponent":37,"./ReactDOM":39,"./ReactMount":60,"./invariant":115,"./merge":124,"__browserify_process":1}],45:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -8564,7 +8564,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMOption;
 
-},{"./ReactCompositeComponent":37,"./ReactDOM":39,"__browserify_process":2}],46:[function(require,module,exports){
+},{"./ReactCompositeComponent":37,"./ReactDOM":39,"__browserify_process":1}],46:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -8726,7 +8726,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./LinkedValueMixin":29,"./ReactCompositeComponent":37,"./ReactDOM":39,"./invariant":115,"./merge":124,"__browserify_process":2}],47:[function(require,module,exports){
+},{"./LinkedValueMixin":29,"./ReactCompositeComponent":37,"./ReactDOM":39,"./invariant":115,"./merge":124,"__browserify_process":1}],47:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -9055,7 +9055,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMTextarea;
 
-},{"./DOMPropertyOperations":16,"./LinkedValueMixin":29,"./ReactCompositeComponent":37,"./ReactDOM":39,"./invariant":115,"./merge":124,"__browserify_process":2}],49:[function(require,module,exports){
+},{"./DOMPropertyOperations":16,"./LinkedValueMixin":29,"./ReactCompositeComponent":37,"./ReactDOM":39,"./invariant":115,"./merge":124,"__browserify_process":1}],49:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -9225,7 +9225,7 @@ module.exports = {
   inject: inject
 };
 
-},{"./ChangeEventPlugin":12,"./CompositionEventPlugin":13,"./DOMProperty":15,"./DefaultDOMPropertyConfig":18,"./DefaultEventPluginOrder":19,"./EnterLeaveEventPlugin":20,"./EventPluginHub":23,"./MobileSafariClickEventPlugin":30,"./ReactDOM":39,"./ReactDOMButton":40,"./ReactDOMForm":42,"./ReactDOMInput":44,"./ReactDOMOption":45,"./ReactDOMSelect":46,"./ReactDOMTextarea":48,"./ReactDefaultBatchingStrategy":49,"./ReactDefaultPerf":51,"./ReactEventEmitter":53,"./ReactEventTopLevelCallback":55,"./ReactInstanceHandles":57,"./ReactPerf":65,"./ReactUpdates":76,"./SelectEventPlugin":78,"./SimpleEventPlugin":79,"__browserify_process":2}],51:[function(require,module,exports){
+},{"./ChangeEventPlugin":12,"./CompositionEventPlugin":13,"./DOMProperty":15,"./DefaultDOMPropertyConfig":18,"./DefaultEventPluginOrder":19,"./EnterLeaveEventPlugin":20,"./EventPluginHub":23,"./MobileSafariClickEventPlugin":30,"./ReactDOM":39,"./ReactDOMButton":40,"./ReactDOMForm":42,"./ReactDOMInput":44,"./ReactDOMOption":45,"./ReactDOMSelect":46,"./ReactDOMTextarea":48,"./ReactDefaultBatchingStrategy":49,"./ReactDefaultPerf":51,"./ReactEventEmitter":53,"./ReactEventTopLevelCallback":55,"./ReactInstanceHandles":57,"./ReactPerf":65,"./ReactUpdates":76,"./SelectEventPlugin":78,"./SimpleEventPlugin":79,"__browserify_process":1}],51:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -9634,7 +9634,7 @@ if ("production" !== process.env.NODE_ENV) {
 
 module.exports = ReactDefaultPerf;
 
-},{"./performanceNow":131,"__browserify_process":2}],52:[function(require,module,exports){
+},{"./performanceNow":131,"__browserify_process":1}],52:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -9682,7 +9682,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{"__browserify_process":2}],53:[function(require,module,exports){
+},{"__browserify_process":1}],53:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -10025,7 +10025,7 @@ var ReactEventEmitter = merge(ReactEventEmitterMixin, {
 
 module.exports = ReactEventEmitter;
 
-},{"./EventConstants":21,"./EventListener":22,"./EventPluginHub":23,"./ExecutionEnvironment":27,"./ReactEventEmitterMixin":54,"./ViewportMetrics":90,"./invariant":115,"./isEventSupported":116,"./merge":124,"__browserify_process":2}],54:[function(require,module,exports){
+},{"./EventConstants":21,"./EventListener":22,"./EventPluginHub":23,"./ExecutionEnvironment":27,"./ReactEventEmitterMixin":54,"./ViewportMetrics":90,"./invariant":115,"./isEventSupported":116,"./merge":124,"__browserify_process":1}],54:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -10673,7 +10673,7 @@ var ReactInstanceHandles = {
 
 module.exports = ReactInstanceHandles;
 
-},{"./invariant":115,"__browserify_process":2}],58:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],58:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -11403,7 +11403,7 @@ var ReactMount = {
 
 module.exports = ReactMount;
 
-},{"./$":7,"./ReactEventEmitter":53,"./ReactInstanceHandles":57,"./containsNode":93,"./getReactRootElementInContainer":111,"./invariant":115,"__browserify_process":2}],61:[function(require,module,exports){
+},{"./$":7,"./ReactEventEmitter":53,"./ReactInstanceHandles":57,"./containsNode":93,"./getReactRootElementInContainer":111,"./invariant":115,"__browserify_process":1}],61:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -12129,7 +12129,7 @@ var ReactOwner = {
 
 module.exports = ReactOwner;
 
-},{"./invariant":115,"__browserify_process":2}],65:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],65:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -12219,7 +12219,7 @@ function _noMeasure(objName, fnName, func) {
 
 module.exports = ReactPerf;
 
-},{"./ExecutionEnvironment":27,"__browserify_process":2}],66:[function(require,module,exports){
+},{"./ExecutionEnvironment":27,"__browserify_process":1}],66:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -12349,7 +12349,7 @@ var ReactPropTransferer = {
 
 module.exports = ReactPropTransferer;
 
-},{"./emptyFunction":100,"./invariant":115,"./joinClasses":120,"./merge":124,"__browserify_process":2}],67:[function(require,module,exports){
+},{"./emptyFunction":100,"./invariant":115,"./joinClasses":120,"./merge":124,"__browserify_process":1}],67:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -12509,7 +12509,7 @@ function createChainableTypeChecker(validate) {
 
 module.exports = Props;
 
-},{"./createObjectFrom":97,"./invariant":115,"__browserify_process":2}],68:[function(require,module,exports){
+},{"./createObjectFrom":97,"./invariant":115,"__browserify_process":1}],68:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -12736,7 +12736,7 @@ module.exports = {
   renderComponentToString: renderComponentToString
 };
 
-},{"./ReactComponent":34,"./ReactInstanceHandles":57,"./ReactMarkupChecksum":59,"./ReactReconcileTransaction":68,"./invariant":115,"__browserify_process":2}],70:[function(require,module,exports){
+},{"./ReactComponent":34,"./ReactInstanceHandles":57,"./ReactMarkupChecksum":59,"./ReactReconcileTransaction":68,"./invariant":115,"__browserify_process":1}],70:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -13425,7 +13425,7 @@ var ReactTransitionableChild = React.createClass({
 
 module.exports = ReactTransitionableChild;
 
-},{"./CSSCore":8,"./React":32,"./ReactTransitionEvents":72,"__browserify_process":2}],76:[function(require,module,exports){
+},{"./CSSCore":8,"./React":32,"./ReactTransitionEvents":72,"__browserify_process":1}],76:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -13572,7 +13572,7 @@ var ReactUpdates = {
 
 module.exports = ReactUpdates;
 
-},{"./invariant":115,"__browserify_process":2}],77:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],77:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -14201,7 +14201,7 @@ var SimpleEventPlugin = {
 
 module.exports = SimpleEventPlugin;
 
-},{"./EventConstants":21,"./EventPropagators":26,"./SyntheticClipboardEvent":80,"./SyntheticEvent":82,"./SyntheticFocusEvent":83,"./SyntheticKeyboardEvent":84,"./SyntheticMouseEvent":85,"./SyntheticTouchEvent":86,"./SyntheticUIEvent":87,"./SyntheticWheelEvent":88,"./invariant":115,"./keyOf":122,"__browserify_process":2}],80:[function(require,module,exports){
+},{"./EventConstants":21,"./EventPropagators":26,"./SyntheticClipboardEvent":80,"./SyntheticEvent":82,"./SyntheticFocusEvent":83,"./SyntheticKeyboardEvent":84,"./SyntheticMouseEvent":85,"./SyntheticTouchEvent":86,"./SyntheticUIEvent":87,"./SyntheticWheelEvent":88,"./invariant":115,"./keyOf":122,"__browserify_process":1}],80:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -15074,7 +15074,7 @@ var Transaction = {
 
 module.exports = Transaction;
 
-},{"./invariant":115,"__browserify_process":2}],90:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],90:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -15169,7 +15169,7 @@ function accumulate(current, next) {
 
 module.exports = accumulate;
 
-},{"./invariant":115,"__browserify_process":2}],92:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],92:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -15317,7 +15317,7 @@ function copyProperties(obj, a, b, c, d, e, f) {
 
 module.exports = copyProperties;
 
-},{"__browserify_process":2}],95:[function(require,module,exports){
+},{"__browserify_process":1}],95:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -15508,7 +15508,7 @@ function createNodesFromMarkup(markup, handleScript) {
 
 module.exports = createNodesFromMarkup;
 
-},{"./ExecutionEnvironment":27,"./createArrayFrom":95,"./getMarkupWrap":109,"./invariant":115,"__browserify_process":2}],97:[function(require,module,exports){
+},{"./ExecutionEnvironment":27,"./createArrayFrom":95,"./getMarkupWrap":109,"./invariant":115,"__browserify_process":1}],97:[function(require,module,exports){
 var process=require("__browserify_process");/**
  * Copyright 2013 Facebook, Inc.
  *
@@ -15571,7 +15571,7 @@ function createObjectFrom(keys, values /* = true */) {
 
 module.exports = createObjectFrom;
 
-},{"__browserify_process":2}],98:[function(require,module,exports){
+},{"__browserify_process":1}],98:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -15924,7 +15924,7 @@ function flattenChildren(children) {
 
 module.exports = flattenChildren;
 
-},{"./invariant":115,"./traverseAllChildren":133,"__browserify_process":2}],105:[function(require,module,exports){
+},{"./invariant":115,"./traverseAllChildren":133,"__browserify_process":1}],105:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -16223,7 +16223,7 @@ function getMarkupWrap(nodeName) {
 
 module.exports = getMarkupWrap;
 
-},{"./ExecutionEnvironment":27,"./invariant":115,"__browserify_process":2}],110:[function(require,module,exports){
+},{"./ExecutionEnvironment":27,"./invariant":115,"__browserify_process":1}],110:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -16529,7 +16529,7 @@ if ("production" !== process.env.NODE_ENV) {
   module.exports = invariantDev;
 }
 
-},{"__browserify_process":2}],116:[function(require,module,exports){
+},{"__browserify_process":1}],116:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -16829,7 +16829,7 @@ var keyMirror = function(obj) {
 
 module.exports = keyMirror;
 
-},{"./invariant":115,"__browserify_process":2}],122:[function(require,module,exports){
+},{"./invariant":115,"__browserify_process":1}],122:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -17091,7 +17091,7 @@ var mergeHelpers = {
 
 module.exports = mergeHelpers;
 
-},{"./invariant":115,"./keyMirror":121,"__browserify_process":2}],126:[function(require,module,exports){
+},{"./invariant":115,"./keyMirror":121,"__browserify_process":1}],126:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -17276,7 +17276,7 @@ function mutateHTMLNodeWithMarkup(node, markup) {
 
 module.exports = mutateHTMLNodeWithMarkup;
 
-},{"./createNodesFromMarkup":96,"./filterAttributes":103,"./invariant":115,"__browserify_process":2}],129:[function(require,module,exports){
+},{"./createNodesFromMarkup":96,"./filterAttributes":103,"./invariant":115,"__browserify_process":1}],129:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  *
@@ -17598,7 +17598,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 
-},{"./ReactComponent":34,"./ReactTextComponent":71,"./invariant":115,"__browserify_process":2}],134:[function(require,module,exports){
+},{"./ReactComponent":34,"./ReactTextComponent":71,"./invariant":115,"__browserify_process":1}],134:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};(function (global, undefined) {
     "use strict";
 
@@ -17818,18 +17818,634 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
     }
 }(typeof global === "object" && global ? global : this));
 
-},{"__browserify_process":2}],135:[function(require,module,exports){
+},{"__browserify_process":1}],135:[function(require,module,exports){
+// Copyright (C) 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+/**
+ * @fileoverview Install a leaky WeakMap emulation on platforms that
+ * don't provide a built-in one.
+ *
+ * <p>Assumes that an ES5 platform where, if {@code WeakMap} is
+ * already present, then it conforms to the anticipated ES6
+ * specification. To run this file on an ES5 or almost ES5
+ * implementation where the {@code WeakMap} specification does not
+ * quite conform, run <code>repairES5.js</code> first.
+ *
+ * <p> Even though WeakMapModule is not global, the linter thinks it
+ * is, which is why it is in the overrides list below.
+ *
+ * @author Mark S. Miller
+ * @requires crypto, ArrayBuffer, Uint8Array, navigator, console
+ * @overrides WeakMap, ses, Proxy
+ * @overrides WeakMapModule
+ */
+
+/**
+ * This {@code WeakMap} emulation is observably equivalent to the
+ * ES-Harmony WeakMap, but with leakier garbage collection properties.
+ *
+ * <p>As with true WeakMaps, in this emulation, a key does not
+ * retain maps indexed by that key and (crucially) a map does not
+ * retain the keys it indexes. A map by itself also does not retain
+ * the values associated with that map.
+ *
+ * <p>However, the values associated with a key in some map are
+ * retained so long as that key is retained and those associations are
+ * not overridden. For example, when used to support membranes, all
+ * values exported from a given membrane will live for the lifetime
+ * they would have had in the absence of an interposed membrane. Even
+ * when the membrane is revoked, all objects that would have been
+ * reachable in the absence of revocation will still be reachable, as
+ * far as the GC can tell, even though they will no longer be relevant
+ * to ongoing computation.
+ *
+ * <p>The API implemented here is approximately the API as implemented
+ * in FF6.0a1 and agreed to by MarkM, Andreas Gal, and Dave Herman,
+ * rather than the offially approved proposal page. TODO(erights):
+ * upgrade the ecmascript WeakMap proposal page to explain this API
+ * change and present to EcmaScript committee for their approval.
+ *
+ * <p>The first difference between the emulation here and that in
+ * FF6.0a1 is the presence of non enumerable {@code get___, has___,
+ * set___, and delete___} methods on WeakMap instances to represent
+ * what would be the hidden internal properties of a primitive
+ * implementation. Whereas the FF6.0a1 WeakMap.prototype methods
+ * require their {@code this} to be a genuine WeakMap instance (i.e.,
+ * an object of {@code [[Class]]} "WeakMap}), since there is nothing
+ * unforgeable about the pseudo-internal method names used here,
+ * nothing prevents these emulated prototype methods from being
+ * applied to non-WeakMaps with pseudo-internal methods of the same
+ * names.
+ *
+ * <p>Another difference is that our emulated {@code
+ * WeakMap.prototype} is not itself a WeakMap. A problem with the
+ * current FF6.0a1 API is that WeakMap.prototype is itself a WeakMap
+ * providing ambient mutability and an ambient communications
+ * channel. Thus, if a WeakMap is already present and has this
+ * problem, repairES5.js wraps it in a safe wrappper in order to
+ * prevent access to this channel. (See
+ * PATCH_MUTABLE_FROZEN_WEAKMAP_PROTO in repairES5.js).
+ */
+
+/**
+ * If this is a full <a href=
+ * "http://code.google.com/p/es-lab/wiki/SecureableES5"
+ * >secureable ES5</a> platform and the ES-Harmony {@code WeakMap} is
+ * absent, install an approximate emulation.
+ *
+ * <p>If WeakMap is present but cannot store some objects, use our approximate
+ * emulation as a wrapper.
+ *
+ * <p>If this is almost a secureable ES5 platform, then WeakMap.js
+ * should be run after repairES5.js.
+ *
+ * <p>See {@code WeakMap} for documentation of the garbage collection
+ * properties of this WeakMap emulation.
+ */
+(function WeakMapModule() {
+  "use strict";
+
+  if (typeof ses !== 'undefined' && ses.ok && !ses.ok()) {
+    // already too broken, so give up
+    return;
+  }
+
+  /**
+   * In some cases (current Firefox), we must make a choice betweeen a
+   * WeakMap which is capable of using all varieties of host objects as
+   * keys and one which is capable of safely using proxies as keys. See
+   * comments below about HostWeakMap and DoubleWeakMap for details.
+   *
+   * This function (which is a global, not exposed to guests) marks a
+   * WeakMap as permitted to do what is necessary to index all host
+   * objects, at the cost of making it unsafe for proxies.
+   *
+   * Do not apply this function to anything which is not a genuine
+   * fresh WeakMap.
+   */
+  function weakMapPermitHostObjects(map) {
+    // identity of function used as a secret -- good enough and cheap
+    if (map.permitHostObjects___) {
+      map.permitHostObjects___(weakMapPermitHostObjects);
+    }
+  }
+  if (typeof ses !== 'undefined') {
+    ses.weakMapPermitHostObjects = weakMapPermitHostObjects;
+  }
+
+  // IE 11 has no Proxy but has a broken WeakMap such that we need to patch
+  // it using DoubleWeakMap; this flag tells DoubleWeakMap so.
+  var doubleWeakMapCheckSilentFailure = false;
+
+  // Check if there is already a good-enough WeakMap implementation, and if so
+  // exit without replacing it.
+  if (typeof WeakMap === 'function') {
+    var HostWeakMap = WeakMap;
+    // There is a WeakMap -- is it good enough?
+    if (typeof navigator !== 'undefined' &&
+        /Firefox/.test(navigator.userAgent)) {
+      // We're now *assuming not*, because as of this writing (2013-05-06)
+      // Firefox's WeakMaps have a miscellany of objects they won't accept, and
+      // we don't want to make an exhaustive list, and testing for just one
+      // will be a problem if that one is fixed alone (as they did for Event).
+
+      // If there is a platform that we *can* reliably test on, here's how to
+      // do it:
+      //  var problematic = ... ;
+      //  var testHostMap = new HostWeakMap();
+      //  try {
+      //    testHostMap.set(problematic, 1);  // Firefox 20 will throw here
+      //    if (testHostMap.get(problematic) === 1) {
+      //      return;
+      //    }
+      //  } catch (e) {}
+
+    } else {
+      // IE 11 bug: WeakMaps silently fail to store frozen objects.
+      var testMap = new HostWeakMap();
+      var testObject = Object.freeze({});
+      testMap.set(testObject, 1);
+      if (testMap.get(testObject) !== 1) {
+        doubleWeakMapCheckSilentFailure = true;
+        // Fall through to installing our WeakMap.
+      } else {
+        module.exports = WeakMap;
+        return;
+      }
+    }
+  }
+
+  var hop = Object.prototype.hasOwnProperty;
+  var gopn = Object.getOwnPropertyNames;
+  var defProp = Object.defineProperty;
+  var isExtensible = Object.isExtensible;
+
+  /**
+   * Security depends on HIDDEN_NAME being both <i>unguessable</i> and
+   * <i>undiscoverable</i> by untrusted code.
+   *
+   * <p>Given the known weaknesses of Math.random() on existing
+   * browsers, it does not generate unguessability we can be confident
+   * of.
+   *
+   * <p>It is the monkey patching logic in this file that is intended
+   * to ensure undiscoverability. The basic idea is that there are
+   * three fundamental means of discovering properties of an object:
+   * The for/in loop, Object.keys(), and Object.getOwnPropertyNames(),
+   * as well as some proposed ES6 extensions that appear on our
+   * whitelist. The first two only discover enumerable properties, and
+   * we only use HIDDEN_NAME to name a non-enumerable property, so the
+   * only remaining threat should be getOwnPropertyNames and some
+   * proposed ES6 extensions that appear on our whitelist. We monkey
+   * patch them to remove HIDDEN_NAME from the list of properties they
+   * returns.
+   *
+   * <p>TODO(erights): On a platform with built-in Proxies, proxies
+   * could be used to trap and thereby discover the HIDDEN_NAME, so we
+   * need to monkey patch Proxy.create, Proxy.createFunction, etc, in
+   * order to wrap the provided handler with the real handler which
+   * filters out all traps using HIDDEN_NAME.
+   *
+   * <p>TODO(erights): Revisit Mike Stay's suggestion that we use an
+   * encapsulated function at a not-necessarily-secret name, which
+   * uses the Stiegler shared-state rights amplification pattern to
+   * reveal the associated value only to the WeakMap in which this key
+   * is associated with that value. Since only the key retains the
+   * function, the function can also remember the key without causing
+   * leakage of the key, so this doesn't violate our general gc
+   * goals. In addition, because the name need not be a guarded
+   * secret, we could efficiently handle cross-frame frozen keys.
+   */
+  var HIDDEN_NAME_PREFIX = 'weakmap:';
+  var HIDDEN_NAME = HIDDEN_NAME_PREFIX + 'ident:' + Math.random() + '___';
+
+  if (typeof crypto !== 'undefined' &&
+      typeof crypto.getRandomValues === 'function' &&
+      typeof ArrayBuffer === 'function' &&
+      typeof Uint8Array === 'function') {
+    var ab = new ArrayBuffer(25);
+    var u8s = new Uint8Array(ab);
+    crypto.getRandomValues(u8s);
+    HIDDEN_NAME = HIDDEN_NAME_PREFIX + 'rand:' +
+      Array.prototype.map.call(u8s, function(u8) {
+        return (u8 % 36).toString(36);
+      }).join('') + '___';
+  }
+
+  function isNotHiddenName(name) {
+    return !(
+        name.substr(0, HIDDEN_NAME_PREFIX.length) == HIDDEN_NAME_PREFIX &&
+        name.substr(name.length - 3) === '___');
+  }
+
+  /**
+   * Monkey patch getOwnPropertyNames to avoid revealing the
+   * HIDDEN_NAME.
+   *
+   * <p>The ES5.1 spec requires each name to appear only once, but as
+   * of this writing, this requirement is controversial for ES6, so we
+   * made this code robust against this case. If the resulting extra
+   * search turns out to be expensive, we can probably relax this once
+   * ES6 is adequately supported on all major browsers, iff no browser
+   * versions we support at that time have relaxed this constraint
+   * without providing built-in ES6 WeakMaps.
+   */
+  defProp(Object, 'getOwnPropertyNames', {
+    value: function fakeGetOwnPropertyNames(obj) {
+      return gopn(obj).filter(isNotHiddenName);
+    }
+  });
+
+  /**
+   * getPropertyNames is not in ES5 but it is proposed for ES6 and
+   * does appear in our whitelist, so we need to clean it too.
+   */
+  if ('getPropertyNames' in Object) {
+    var originalGetPropertyNames = Object.getPropertyNames;
+    defProp(Object, 'getPropertyNames', {
+      value: function fakeGetPropertyNames(obj) {
+        return originalGetPropertyNames(obj).filter(isNotHiddenName);
+      }
+    });
+  }
+
+  /**
+   * <p>To treat objects as identity-keys with reasonable efficiency
+   * on ES5 by itself (i.e., without any object-keyed collections), we
+   * need to add a hidden property to such key objects when we
+   * can. This raises several issues:
+   * <ul>
+   * <li>Arranging to add this property to objects before we lose the
+   *     chance, and
+   * <li>Hiding the existence of this new property from most
+   *     JavaScript code.
+   * <li>Preventing <i>certification theft</i>, where one object is
+   *     created falsely claiming to be the key of an association
+   *     actually keyed by another object.
+   * <li>Preventing <i>value theft</i>, where untrusted code with
+   *     access to a key object but not a weak map nevertheless
+   *     obtains access to the value associated with that key in that
+   *     weak map.
+   * </ul>
+   * We do so by
+   * <ul>
+   * <li>Making the name of the hidden property unguessable, so "[]"
+   *     indexing, which we cannot intercept, cannot be used to access
+   *     a property without knowing the name.
+   * <li>Making the hidden property non-enumerable, so we need not
+   *     worry about for-in loops or {@code Object.keys},
+   * <li>monkey patching those reflective methods that would
+   *     prevent extensions, to add this hidden property first,
+   * <li>monkey patching those methods that would reveal this
+   *     hidden property.
+   * </ul>
+   * Unfortunately, because of same-origin iframes, we cannot reliably
+   * add this hidden property before an object becomes
+   * non-extensible. Instead, if we encounter a non-extensible object
+   * without a hidden record that we can detect (whether or not it has
+   * a hidden record stored under a name secret to us), then we just
+   * use the key object itself to represent its identity in a brute
+   * force leaky map stored in the weak map, losing all the advantages
+   * of weakness for these.
+   */
+  function getHiddenRecord(key) {
+    if (key !== Object(key)) {
+      throw new TypeError('Not an object: ' + key);
+    }
+    var hiddenRecord = key[HIDDEN_NAME];
+    if (hiddenRecord && hiddenRecord.key === key) { return hiddenRecord; }
+    if (!isExtensible(key)) {
+      // Weak map must brute force, as explained in doc-comment above.
+      return void 0;
+    }
+    var hiddenRecord = Object.create(null);
+    // For quickly verifying that this hidden record is an owned property, not
+    // a hidden record from up the prototype chain.
+    hiddenRecord.key = key;
+    defProp(key, HIDDEN_NAME, {value: hiddenRecord});
+    // Implicitly non-enumerable, read-only, non-configurable
+    return hiddenRecord;
+  }
+
+  /**
+   * Monkey patch operations that would make their argument
+   * non-extensible.
+   *
+   * <p>The monkey patched versions throw a TypeError if their
+   * argument is not an object, so it should only be done to functions
+   * that should throw a TypeError anyway if their argument is not an
+   * object.
+   */
+  (function(){
+    var oldFreeze = Object.freeze;
+    defProp(Object, 'freeze', {
+      value: function identifyingFreeze(obj) {
+        getHiddenRecord(obj);
+        return oldFreeze(obj);
+      }
+    });
+    var oldSeal = Object.seal;
+    defProp(Object, 'seal', {
+      value: function identifyingSeal(obj) {
+        getHiddenRecord(obj);
+        return oldSeal(obj);
+      }
+    });
+    var oldPreventExtensions = Object.preventExtensions;
+    defProp(Object, 'preventExtensions', {
+      value: function identifyingPreventExtensions(obj) {
+        getHiddenRecord(obj);
+        return oldPreventExtensions(obj);
+      }
+    });
+  })();
+
+  function constFunc(func) {
+    func.prototype = null;
+    return Object.freeze(func);
+  }
+
+  var calledAsFunctionWarningDone = false;
+  function calledAsFunctionWarning() {
+    // Future ES6 WeakMap is currently (2013-09-10) expected to reject WeakMap()
+    // but we used to permit it and do it ourselves, so warn only.
+    if (!calledAsFunctionWarningDone && typeof console !== 'undefined') {
+      calledAsFunctionWarningDone = true;
+      console.warn('WeakMap should be invoked as new WeakMap(), not ' +
+          'WeakMap(). This will be an error in the future.');
+    }
+  }
+
+  var nextId = 0;
+
+  var OurWeakMap = function() {
+    if (!(this instanceof OurWeakMap)) {  // approximate test for new ...()
+      calledAsFunctionWarning();
+    }
+
+    // We are currently (12/25/2012) never encountering any prematurely
+    // non-extensible keys.
+    var keys = []; // brute force for prematurely non-extensible keys.
+    var values = []; // brute force for corresponding values.
+    var id = nextId++;
+
+    function get___(key, opt_default) {
+      var index;
+      var hiddenRecord = getHiddenRecord(key);
+      if (hiddenRecord) {
+        return id in hiddenRecord ? hiddenRecord[id] : opt_default;
+      } else {
+        index = keys.indexOf(key);
+        return index >= 0 ? values[index] : opt_default;
+      }
+    }
+
+    function has___(key) {
+      var hiddenRecord = getHiddenRecord(key);
+      if (hiddenRecord) {
+        return id in hiddenRecord;
+      } else {
+        return keys.indexOf(key) >= 0;
+      }
+    }
+
+    function set___(key, value) {
+      var index;
+      var hiddenRecord = getHiddenRecord(key);
+      if (hiddenRecord) {
+        hiddenRecord[id] = value;
+      } else {
+        index = keys.indexOf(key);
+        if (index >= 0) {
+          values[index] = value;
+        } else {
+          keys.push(key);
+          values.push(value);
+        }
+      }
+    }
+
+    function delete___(key) {
+      var hiddenRecord = getHiddenRecord(key);
+      if (hiddenRecord) {
+        delete hiddenRecord[id];
+      } else {
+        return keys.indexOf(key) >= 0;
+      }
+    }
+
+    return Object.create(OurWeakMap.prototype, {
+      get___:    { value: constFunc(get___) },
+      has___:    { value: constFunc(has___) },
+      set___:    { value: constFunc(set___) },
+      delete___: { value: constFunc(delete___) }
+    });
+  };
+
+  OurWeakMap.prototype = Object.create(Object.prototype, {
+    get: {
+      /**
+       * Return the value most recently associated with key, or
+       * opt_default if none.
+       */
+      value: function get(key, opt_default) {
+        return this.get___(key, opt_default);
+      },
+      writable: true,
+      configurable: true
+    },
+
+    has: {
+      /**
+       * Is there a value associated with key in this WeakMap?
+       */
+      value: function has(key) {
+        return this.has___(key);
+      },
+      writable: true,
+      configurable: true
+    },
+
+    set: {
+      /**
+       * Associate value with key in this WeakMap, overwriting any
+       * previous association if present.
+       */
+      value: function set(key, value) {
+        this.set___(key, value);
+      },
+      writable: true,
+      configurable: true
+    },
+
+    'delete': {
+      /**
+       * Remove any association for key in this WeakMap, returning
+       * whether there was one.
+       *
+       * <p>Note that the boolean return here does not work like the
+       * {@code delete} operator. The {@code delete} operator returns
+       * whether the deletion succeeds at bringing about a state in
+       * which the deleted property is absent. The {@code delete}
+       * operator therefore returns true if the property was already
+       * absent, whereas this {@code delete} method returns false if
+       * the association was already absent.
+       */
+      value: function remove(key) {
+        return this.delete___(key);
+      },
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (typeof HostWeakMap === 'function') {
+    (function() {
+      // If we got here, then the platform has a WeakMap but we are concerned
+      // that it may refuse to store some key types. Therefore, make a map
+      // implementation which makes use of both as possible.
+
+      // In this mode we are always using double maps, so we are not proxy-safe.
+      // This combination does not occur in any known browser, but we had best
+      // be safe.
+      if (doubleWeakMapCheckSilentFailure && typeof Proxy !== 'undefined') {
+        Proxy = undefined;
+      }
+
+      function DoubleWeakMap() {
+        if (!(this instanceof OurWeakMap)) {  // approximate test for new ...()
+          calledAsFunctionWarning();
+        }
+
+        // Preferable, truly weak map.
+        var hmap = new HostWeakMap();
+
+        // Our hidden-property-based pseudo-weak-map. Lazily initialized in the
+        // 'set' implementation; thus we can avoid performing extra lookups if
+        // we know all entries actually stored are entered in 'hmap'.
+        var omap = undefined;
+
+        // Hidden-property maps are not compatible with proxies because proxies
+        // can observe the hidden name and either accidentally expose it or fail
+        // to allow the hidden property to be set. Therefore, we do not allow
+        // arbitrary WeakMaps to switch to using hidden properties, but only
+        // those which need the ability, and unprivileged code is not allowed
+        // to set the flag.
+        //
+        // (Except in doubleWeakMapCheckSilentFailure mode in which case we
+        // disable proxies.)
+        var enableSwitching = false;
+
+        function dget(key, opt_default) {
+          if (omap) {
+            return hmap.has(key) ? hmap.get(key)
+                : omap.get___(key, opt_default);
+          } else {
+            return hmap.get(key, opt_default);
+          }
+        }
+
+        function dhas(key) {
+          return hmap.has(key) || (omap ? omap.has___(key) : false);
+        }
+
+        var dset;
+        if (doubleWeakMapCheckSilentFailure) {
+          dset = function(key, value) {
+            hmap.set(key, value);
+            if (!hmap.has(key)) {
+              if (!omap) { omap = new OurWeakMap(); }
+              omap.set(key, value);
+            }
+          };
+        } else {
+          dset = function(key, value) {
+            if (enableSwitching) {
+              try {
+                hmap.set(key, value);
+              } catch (e) {
+                if (!omap) { omap = new OurWeakMap(); }
+                omap.set___(key, value);
+              }
+            } else {
+              hmap.set(key, value);
+            }
+          };
+        }
+
+        function ddelete(key) {
+          hmap['delete'](key);
+          if (omap) { omap.delete___(key); }
+        }
+
+        return Object.create(OurWeakMap.prototype, {
+          get___:    { value: constFunc(dget) },
+          has___:    { value: constFunc(dhas) },
+          set___:    { value: constFunc(dset) },
+          delete___: { value: constFunc(ddelete) },
+          permitHostObjects___: { value: constFunc(function(token) {
+            if (token === weakMapPermitHostObjects) {
+              enableSwitching = true;
+            } else {
+              throw new Error('bogus call to permitHostObjects___');
+            }
+          })}
+        });
+      }
+      DoubleWeakMap.prototype = OurWeakMap.prototype;
+      module.exports = DoubleWeakMap;
+
+      // define .constructor to hide OurWeakMap ctor
+      Object.defineProperty(WeakMap.prototype, 'constructor', {
+        value: WeakMap,
+        enumerable: false,  // as default .constructor is
+        configurable: true,
+        writable: true
+      });
+    })();
+  } else {
+    // There is no host WeakMap, so we must use the emulation.
+
+    // Emulated WeakMaps are incompatible with native proxies (because proxies
+    // can observe the hidden name), so we must disable Proxy usage (in
+    // ArrayLike and Domado, currently).
+    if (typeof Proxy !== 'undefined') {
+      Proxy = undefined;
+    }
+
+    module.exports = OurWeakMap;
+  }
+})();
+
+},{}],136:[function(require,module,exports){
 'use strict';
 var React = require('react/addons');
 var ObserveUtils = require('observe-utils');
 var routes = require('./routes');
-var registry = require('./registry');
+
 var Utils = require('./utils/utils');
 var Todo = require('./model/todo');
-var TodoAppPM = require('./views/todoAppPM');
-var FooterPM = require('./views/footerPM');
+var ModelWrapper = require('./utils/model-wrapper');
+var control = require('./utils/react-controller');
+var FooterController = require('./controllers/footerController');
+var TodoAppController = require('./controllers/appController');
 var app = require('./views/todoApp');
+var footer = require('./views/footer');
+var item = require('./views/todoItem');
 
+require('weak-map');
 if (typeof Object.observe !== 'function') {
     require('observe-shim');
     if (typeof setImmediate !== 'function') {
@@ -17845,31 +18461,144 @@ var todoArr = Utils.store('react-observe-todos').map(function (todo) {
 
 var todos = List.fromArray(todoArr);
 
-// A nice way to listen any changes in our collections and save it
-Utils.deepObserve(todos, function () {
+todos.id = "todoList";
+
+var rootModel = {
+    todos: todos,
+    nowShowing: window.location.hash
+};
+
+var modelWrapper = new ModelWrapper(todos);
+modelWrapper.addChangeHandler(function () {
     Utils.store('react-observe-todos', todos);
+    requestAnimationFrame(function () {
+        application.performUpdateIfNecessary();
+    });
 });
 
-registry.appModel = new TodoAppPM(todos);
-registry.footerModel = new FooterPM(todos);
+control.ControllerRegistry.instance.registerController(footer.TodoFooterClass, new FooterController(todos));
+control.ControllerRegistry.instance.registerController(app.TodoAppClass, new TodoAppController(todos));
+control.ControllerRegistry.instance.registerController(item.TodoItemClass, new TodoAppController(todos));
 
 var router = new Router({
     '/': function () {
-        registry.appModel.nowShowing = routes.ALL_TODOS;
+        rootModel.nowShowing = routes.ALL_TODOS;
     },
     '/active': function () {
-        registry.appModel.nowShowing = routes.ACTIVE_TODOS;
+        rootModel.nowShowing = routes.ACTIVE_TODOS;
     },
     '/completed': function () {
-        registry.appModel.nowShowing = routes.COMPLETED_TODOS;
+        rootModel.nowShowing = routes.COMPLETED_TODOS;
     }
 });
 router.init();
 
-React.renderComponent(app.TodoApp(), document.getElementById('todoapp'));
+var application = app.TodoApp(rootModel);
+React.renderComponent(application, document.getElementById('todoapp'));
 React.renderComponent(html.div(null, html.p(null, 'Double-click to edit a todo'), html.p(null, 'Created by ', html.a({ href: 'http://github.com/petehunt/' }, 'petehunt')), html.p(null, 'Part of ', html.a({ href: 'http://todomvc.com' }, 'TodoMVC'))), document.getElementById('info'));
 
-},{"./model/todo":136,"./registry":137,"./routes":138,"./utils/utils":141,"./views/footerPM":143,"./views/todoApp":144,"./views/todoAppPM":145,"director":1,"observe-shim":3,"observe-utils":4,"react/addons":6,"setimmediate":134}],136:[function(require,module,exports){
+},{"./controllers/appController":137,"./controllers/footerController":138,"./model/todo":139,"./routes":141,"./utils/model-wrapper":142,"./utils/react-controller":144,"./utils/utils":146,"./views/footer":147,"./views/todoApp":148,"./views/todoItem":149,"director":2,"observe-shim":3,"observe-utils":4,"react/addons":6,"setimmediate":134,"weak-map":135}],137:[function(require,module,exports){
+'use strict';
+var ObserveUtils = require('observe-utils');
+var Utils = require('../utils/utils');
+var Todo = require('../model/todo');
+
+var app = require('../views/todoApp');
+
+var TodoAppController = (function () {
+    function TodoAppController(todos) {
+        var _this = this;
+        this.todos = todos;
+        this.createTodo = function (title) {
+            var todo = new Todo();
+            todo.title = title;
+            todo.completed = false;
+            todo.id = Utils.uuid();
+            _this.todos.push(todo);
+        };
+        this.destroy = function (todo) {
+            var index = _this.todos.indexOf(todo);
+            if (index !== -1) {
+                _this.todos.splice(index, 1);
+            }
+        };
+        this.edit = function (id) {
+            _this.application.setState({ editing: id });
+        };
+        this.update = function (todo, title) {
+            todo.title = title;
+        };
+        this.toggle = function (todo) {
+            todo.completed = !todo.completed;
+        };
+        this.toggleAll = function (toggle) {
+            _this.todos.forEach(function (todo) {
+                todo.completed = toggle;
+            });
+        };
+    }
+    TodoAppController.prototype.componentDidMount = function (component) {
+        if (component.displayName === app.TodoAppClass['name']) {
+            this.application = component;
+            this.application.onCreate = this.createTodo;
+            this.application.onToggleAll = this.toggleAll;
+        } else {
+        }
+    };
+
+    TodoAppController.prototype.componentWillUnmount = function (component) {
+        if (component.displayName === app.TodoAppClass['name']) {
+            this.application.onCreate = null;
+            this.application.onToggleAll = null;
+            this.application = null;
+        } else {
+            var item = component;
+            item.onDestroy = this.destroy;
+            item.onEdit = this.edit;
+            item.onToggle = this.toggle;
+            item.onUpdate = this.update;
+        }
+    };
+    return TodoAppController;
+})();
+
+module.exports = TodoAppController;
+
+},{"../model/todo":139,"../utils/utils":146,"../views/todoApp":148,"observe-utils":4}],138:[function(require,module,exports){
+'use strict';
+var Todo = require('../model/todo');
+
+var FooterController = (function () {
+    function FooterController(todos) {
+        var _this = this;
+        this.todos = todos;
+        this.clearCompleted = function () {
+            var indexToRemoves = [];
+            _this.todos.forEach(function (todo, index) {
+                if (todo.completed) {
+                    indexToRemoves.push(index);
+                }
+            });
+
+            indexToRemoves.forEach(function (i, j) {
+                this.todos.splice(i - j, 1);
+            }, _this);
+        };
+        this.todos = todos;
+    }
+    FooterController.prototype.componentDidMount = function (footer) {
+        footer.onClearCompleted = this.clearCompleted;
+    };
+
+    FooterController.prototype.componentWillUnmount = function (footer) {
+        footer.onClearCompleted = null;
+    };
+    return FooterController;
+})();
+
+module.exports = FooterController;
+
+},{"../model/todo":139}],139:[function(require,module,exports){
 'use strict';
 var ObserveUtils = require('observe-utils');
 
@@ -17894,98 +18623,250 @@ if (!window.nativeObjectObserve) {
 
 module.exports = Todo;
 
-},{"observe-utils":4}],137:[function(require,module,exports){
-var TodoAppPM = require('./views/todoAppPM');
-var FooterPM = require('./views/footerPM');
+},{"observe-utils":4}],140:[function(require,module,exports){
+var ModelWrapper = require('./utils/model-wrapper');
 
-exports.appModel;
-exports.footerModel;
+exports.modelWrapper;
 
-},{"./views/footerPM":143,"./views/todoAppPM":145}],138:[function(require,module,exports){
+},{"./utils/model-wrapper":142}],141:[function(require,module,exports){
 exports.ALL_TODOS = 'all';
 exports.ACTIVE_TODOS = 'active';
 exports.COMPLETED_TODOS = 'completed';
 
-},{}],139:[function(require,module,exports){
-'use strict';
-var Utils = require('./utils');
+},{}],142:[function(require,module,exports){
+var ObserveUtils = require('observe-utils');
 
-function shallowEqual(objA, objB) {
-    if (objA === objB) {
-        return true;
-    }
-    var key;
+var Observer = Object;
 
-    for (key in objA) {
-        if (objA.hasOwnProperty(key) && (!objB.hasOwnProperty(key) || objA[key] !== objB[key])) {
-            return false;
-        }
-    }
+var push = Function.call.bind(Array.prototype.push);
 
-    for (key in objB) {
-        if (objB.hasOwnProperty(key) && !objA.hasOwnProperty(key)) {
-            return false;
-        }
-    }
-    return true;
+function isArray(obj) {
+    return Array.isArray(obj) || obj instanceof ObserveUtils.List;
 }
 
-// A simple decorator that will 'observe' objects returned by the 'getObservedObjects' method of
-// components and forceUpdate if they dispatch changes
-var ObserverDecorator = (function () {
-    function ObserverDecorator(component) {
+function isObservable(obj) {
+    return Object(obj) === obj && Object.isExtensible(obj);
+}
+
+var ModelWrapper = (function () {
+    function ModelWrapper(root, idField) {
+        if (typeof idField === "undefined") { idField = 'id'; }
         var _this = this;
-        this.component = component;
-        this._observedObjectsChangeHandler = function () {
-            _this.component.forceUpdate();
+        this.root = root;
+        this.idField = idField;
+        this.map = new WeakMap();
+        this.revHelper = 0;
+        this.changeHandler = function () {
+            _this.callbacks.forEach(function (callback) {
+                return callback;
+            });
         };
+        this.listObserver = function (changes) {
+            var target;
+            changes.forEach(function (change) {
+                if (change.type === 'splice') {
+                    var spliceChange = change;
+                    if (spliceChange.removed) {
+                        spliceChange.removed.forEach(this.unobserve);
+                    }
+                    if (spliceChange.addedCount > 0) {
+                        var i = 0, l = spliceChange.index + spliceChange.addedCount;
+                        for (i = spliceChange.index; i < l; i++) {
+                            this.unobserve(spliceChange.object[i]);
+                        }
+                    }
+                } else if (change.type === 'update') {
+                    var objectChange = change;
+                    if (objectChange.oldValue) {
+                        this.unobserve(objectChange.oldValue);
+                    }
+                    this.observe(objectChange.object[objectChange.name]);
+                }
+                target = change.object;
+            });
+            _this.update(target, changes);
+            _this.changeHandler();
+        };
+        this.objectObserver = function (changes) {
+            var target;
+            changes.forEach(function (change) {
+                if (change.oldValue) {
+                    this.unobserve(change.oldValue);
+                }
+                this.observe(change.object[change.name]);
+                target = change.object;
+            });
+            _this.update(target, changes);
+            _this.changeHandler();
+        };
+        if (!isObservable(root)) {
+            throw new TypeError('wrapped model must be an extensible object, given : ' + root);
+        }
+        this.observe(root);
     }
-    ObserverDecorator.prototype.componentDidMount = function () {
-        this._observeObjects();
+    ModelWrapper.prototype.dispose = function () {
+        this.unobserve(this.root);
     };
 
-    ObserverDecorator.prototype.componentDidUpdate = function () {
-        if (typeof this.component.getObservedObjects === 'function') {
-            if (!shallowEqual(this.component.getObservedObjects(), this._observedObjects)) {
-                this._unobserveObjects();
-                this._observeObjects();
+    ModelWrapper.prototype.getRev = function (target) {
+        return this.map.has(target) && this.getRev(target).rev;
+    };
+
+    ModelWrapper.prototype.addChangeHandler = function (callback) {
+        this.callbacks.push(callback);
+    };
+
+    ModelWrapper.prototype.observe = function (target, parent) {
+        if (isObservable(target)) {
+            this.map.set(target, {
+                rev: target[this.idField] + (this.revHelper++),
+                changes: [],
+                parent: parent
+            });
+
+            if (isArray(target)) {
+                ObserveUtils.List.observe(target, this.listObserver);
+                target.forEach(function (item) {
+                    this.observe(item);
+                });
+            } else {
+                Observer.observe(target, this.objectObserver);
+                Object.keys(target).forEach(function (key) {
+                    this.observe(target[key]);
+                });
             }
         }
+    };
+
+    ModelWrapper.prototype.unobserve = function (target) {
+        if (isObservable(target)) {
+            this.map.delete(target);
+            if (isArray(target)) {
+                Observer.unobserve(target, this.listObserver);
+                target.forEach(function (item) {
+                    this.observe(item);
+                });
+            } else {
+                Observer.unobserve(target, this.objectObserver);
+                Object.keys(target).forEach(function (key) {
+                    this.observe(target[key]);
+                });
+            }
+        }
+    };
+
+    ModelWrapper.prototype.update = function (target, changes) {
+        var desc = this.map.get(target);
+
+        //later use push(desc.changes, changes);
+        desc.rev = target[this.idField] + (this.revHelper++);
+        if (desc.parent) {
+            this.update(parent);
+        }
+    };
+    return ModelWrapper;
+})();
+
+module.exports = ModelWrapper;
+
+},{"observe-utils":4}],143:[function(require,module,exports){
+'use strict';
+var registry = require('../registry');
+
+function computeKey(props) {
+    return Object.keys(props).filter(function (prop) {
+        return prop !== '__owner__' && prop !== 'children';
+    }).sort().map(function (prop) {
+        return registry.modelWrapper.getRev(props[prop]);
+    }).join('');
+}
+
+var ObserverDecorator = (function () {
+    function ObserverDecorator(component) {
+        this.component = component;
+    }
+    ObserverDecorator.prototype.componentDidMount = function () {
+        this._key = computeKey(this.component.props);
     };
 
     // We consider that components should react to changes dispatched by Object.observe
     // or to props change, if we want to track properties of objects in our 'props'
     // we just observe them
     ObserverDecorator.prototype.shouldComponentUpdate = function (nextProps, nextState) {
-        return !shallowEqual(this.component.props, nextProps) || !shallowEqual(this.component.state, nextState);
+        return this._key !== computeKey(nextProps);
     };
 
-    ObserverDecorator.prototype.componentWillUnmount = function () {
-        this._unobserveObjects();
-    };
-
-    ObserverDecorator.prototype._observeObjects = function () {
-        if (typeof this.component.getObservedObjects === 'function') {
-            this._observedObjects = this.component.getObservedObjects();
-            this._observedObjects.forEach(function (object) {
-                Utils.observe(object, this._observedObjectsChangeHandler);
-            }, this);
-        }
-    };
-
-    ObserverDecorator.prototype._unobserveObjects = function () {
-        if (this._observedObjects) {
-            this._observedObjects.forEach(function (object) {
-                Object.unobserve(object, this._observedObjectsChangeHandler);
-            }, this);
-        }
+    ObserverDecorator.prototype.componentDidUpdate = function () {
+        this._key = computeKey(this.component.props);
     };
     return ObserverDecorator;
 })();
 
 module.exports = ObserverDecorator;
 
-},{"./utils":141}],140:[function(require,module,exports){
+},{"../registry":140}],144:[function(require,module,exports){
+'use strict';
+var registry = require('../registry');
+
+function computeKey(props) {
+    return Object.keys(props).filter(function (prop) {
+        return prop !== '__owner__' && prop !== 'children';
+    }).sort().map(function (prop) {
+        return registry.modelWrapper.getRev(props[prop]);
+    }).join('');
+}
+
+var ControllerRegistry = (function () {
+    function ControllerRegistry() {
+        this.controlMap = {};
+    }
+    ControllerRegistry.prototype.registerController = function (componentClass, controller) {
+        this.controlMap[componentClass['name']] = controller;
+    };
+
+    ControllerRegistry.prototype.getController = function (name) {
+        if (this.controlMap.hasOwnProperty(name)) {
+            return this.controlMap[name];
+        }
+        return null;
+    };
+
+    Object.defineProperty(ControllerRegistry, "instance", {
+        get: function () {
+            if (!ControllerRegistry._instance) {
+                ControllerRegistry._instance = new ControllerRegistry();
+            }
+            return ControllerRegistry._instance;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return ControllerRegistry;
+})();
+exports.ControllerRegistry = ControllerRegistry;
+
+var ControlledDecorator = (function () {
+    function ControlledDecorator(component) {
+        this.component = component;
+    }
+    ControlledDecorator.prototype.componentDidMount = function () {
+        var controller = ControllerRegistry.instance.getController(this.component.displayName);
+        if (controller) {
+            controller.componentDidMount(this.component);
+        }
+    };
+
+    ControlledDecorator.prototype.componentWillUnmount = function () {
+        var controller = ControllerRegistry.instance.getController(this.component.displayName);
+        if (controller) {
+            controller.componentWillUnmount(this.component);
+        }
+    };
+    return ControlledDecorator;
+})();
+exports.ControlledDecorator = ControlledDecorator;
+
+},{"../registry":140}],145:[function(require,module,exports){
 'use strict';
 var React = require('react/addons');
 
@@ -18123,72 +19004,8 @@ function registerComponent(componentClass) {
 }
 exports.registerComponent = registerComponent;
 
-},{"react/addons":6}],141:[function(require,module,exports){
+},{"react/addons":6}],146:[function(require,module,exports){
 'use strict';
-var ObserveUtils = require('observe-utils');
-var List = ObserveUtils.List;
-
-//prevent typescript bug that does not import a module when only alias are present on the body of the file
-ObserveUtils.defineObservableProperties;
-
-// simple function that will observe a list
-// and all object contained in this list (if they are observable)
-function listObserve(list, handler) {
-    function objectObserver(changes) {
-        handler(changes);
-    }
-
-    function listObserver(changes) {
-        changes.forEach(function (change) {
-            if (change.type === 'splice') {
-                if (change.removed) {
-                    change.removed.forEach(function (object) {
-                        if (Object(object) === object) {
-                            Object.unobserve(object, objectObserver);
-                        }
-                    });
-                }
-                if (change.addedCount > 0) {
-                    var i = 0, l = change.index + change.addedCount;
-                    for (i = change.index; i < l; i++) {
-                        var item = list[i];
-                        if (Object(item) === item) {
-                            Object.observe(item, objectObserver);
-                        }
-                    }
-                }
-            } else if (change.type === 'update') {
-                if (Object(change.oldValue) === change.oldValue) {
-                    Object.unobserve(change.oldValue, objectObserver);
-                }
-                if (Object(list[change.name]) === list[change.name]) {
-                    Object.unobserve(list[change.name], objectObserver);
-                }
-            }
-        });
-        handler(changes);
-    }
-
-    List.observe(list, listObserver);
-
-    list.forEach(function (object) {
-        if (Object(object) === object) {
-            Object.observe(object, objectObserver);
-        }
-    });
-
-    return {
-        dispose: function () {
-            list.forEach(function (object) {
-                if (Object(object) === object) {
-                    Object.unobserve(object, objectObserver);
-                }
-            });
-            Object.unobserve(list, listObserver);
-        }
-    };
-}
-
 function uuid() {
     /*jshint bitwise:false */
     var i, random;
@@ -18229,31 +19046,7 @@ function assign(target, source) {
 }
 exports.assign = assign;
 
-function observe(object, handler) {
-    if (object instanceof List) {
-        List.observe(object, handler);
-    } else {
-        Object.observe(object, handler);
-    }
-}
-exports.observe = observe;
-
-//Observe a list and all objects in this list
-function deepObserve(object, handler) {
-    if (object instanceof List) {
-        return listObserve(object, handler);
-    } else {
-        Object.observe(object, handler);
-        return {
-            dispose: function () {
-                Object.unobserve(object, handler);
-            }
-        };
-    }
-}
-exports.deepObserve = deepObserve;
-
-},{"observe-utils":4}],142:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 'use strict';
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -18263,12 +19056,11 @@ var __extends = this.__extends || function (d, b) {
 };
 var React = require('react/addons');
 var Utils = require('../utils/utils');
-var ObserverDecorator = require('../utils/observe-decorator');
+var ReactControls = require('../utils/react-controller');
 var ReactTypescript = require('../utils/react-typescript');
 var Todo = require('../model/todo');
 var routes = require('../routes');
-var registry = require('../registry');
-var FooterPM = require('./footerPM');
+
 var html = React.DOM;
 
 var TodoFooterClass = (function (_super) {
@@ -18276,85 +19068,29 @@ var TodoFooterClass = (function (_super) {
     function TodoFooterClass() {
         _super.apply(this, arguments);
     }
-    TodoFooterClass.prototype.getObservedObjects = function () {
-        return [this.model];
-    };
-
-    TodoFooterClass.prototype.componentWillMount = function () {
-        // We injec the model by global references here
-        // However in more sophisticated architecture,
-        // we could use some kind of IOC container
-        this.model = registry.footerModel;
-    };
-
-    TodoFooterClass.prototype.clearCompleted = function () {
-        this.model.clearCompleted();
+    TodoFooterClass.prototype.shouldComponentUpdate = function (nextProps, nextState) {
+        return (this.props.nowShowing !== nextProps.nowShowing || this.props.activeTodoCount !== nextProps.activeTodoCount || this.props.completedCount !== nextProps.completedCount);
     };
 
     TodoFooterClass.prototype.render = function () {
-        var activeTodoWord = Utils.pluralize(this.model.activeTodoCount, 'item');
-        var clearButton = this.model.completedCount > 0 ? html.button({
+        var activeTodoWord = Utils.pluralize(this.props.activeTodoCount, 'item');
+        var clearButton = this.props.completedCount > 0 ? html.button({
             id: 'clear-completed',
-            onClick: this.clearCompleted
-        }, ' Clear completed (' + this.model.completedCount + ') ') : null;
+            onClick: this.onClearCompleted
+        }, ' Clear completed (' + this.props.completedCount + ') ') : null;
 
         var show = {};
         show[this.props.nowShowing] = 'selected';
 
-        return html.footer({ id: 'footer' }, html.span({ id: 'todo-count' }, html.strong(null, this.model.activeTodoCount), ' ' + activeTodoWord + ' left'), html.ul({ id: 'filters' }, html.li(null, html.a({ href: '#/', className: show[routes.ALL_TODOS] }, 'All')), ' ', html.li(null, html.a({ href: '#/active', className: show[routes.ACTIVE_TODOS] }, 'Active')), ' ', html.li(null, html.a({ href: '#/completed', className: show[routes.COMPLETED_TODOS] }, 'Completed'))), clearButton);
+        return html.footer({ id: 'footer' }, html.span({ id: 'todo-count' }, html.strong(null, this.props.activeTodoCount), ' ' + activeTodoWord + ' left'), html.ul({ id: 'filters' }, html.li(null, html.a({ href: '#/', className: show[routes.ALL_TODOS] }, 'All')), ' ', html.li(null, html.a({ href: '#/active', className: show[routes.ACTIVE_TODOS] }, 'Active')), ' ', html.li(null, html.a({ href: '#/completed', className: show[routes.COMPLETED_TODOS] }, 'Completed'))), clearButton);
     };
     return TodoFooterClass;
 })(ReactTypescript.ReactComponentBase);
 exports.TodoFooterClass = TodoFooterClass;
 
-exports.TodoFooter = ReactTypescript.registerComponent(TodoFooterClass, ObserverDecorator);
+exports.TodoFooter = ReactTypescript.registerComponent(TodoFooterClass, ReactControls.ControlledDecorator);
 
-},{"../model/todo":136,"../registry":137,"../routes":138,"../utils/observe-decorator":139,"../utils/react-typescript":140,"../utils/utils":141,"./footerPM":143,"react/addons":6}],143:[function(require,module,exports){
-'use strict';
-var ObserveUtils = require('observe-utils');
-var Utils = require('../utils/utils');
-var List = ObserveUtils.List;
-var Todo = require('../model/todo');
-
-var FooterPM = (function () {
-    function FooterPM(todos) {
-        var _this = this;
-        this.todos = todos;
-        this.updateCounts = function () {
-            _this.activeTodoCount = _this.todos.reduce(function (accum, todo) {
-                return todo.completed ? accum : accum + 1;
-            }, 0);
-
-            _this.completedCount = _this.todos.length - _this.activeTodoCount;
-        };
-        this.todos = todos;
-        var self = this;
-        this.updateCounts();
-
-        Utils.deepObserve(this.todos, this.updateCounts);
-    }
-    FooterPM.prototype.clearCompleted = function () {
-        var indexToRemoves = [];
-        this.todos.forEach(function (todo, index) {
-            if (todo.completed) {
-                indexToRemoves.push(index);
-            }
-        });
-
-        indexToRemoves.forEach(function (i, j) {
-            this.todos.splice(i - j, 1);
-        }, this);
-    };
-    return FooterPM;
-})();
-
-if (!window.nativeObjectObserve) {
-    ObserveUtils.defineObservableProperties(FooterPM.prototype, 'activeTodoCount', 'completedCount');
-}
-
-module.exports = FooterPM;
-
-},{"../model/todo":136,"../utils/utils":141,"observe-utils":4}],144:[function(require,module,exports){
+},{"../model/todo":139,"../routes":141,"../utils/react-controller":144,"../utils/react-typescript":145,"../utils/utils":146,"react/addons":6}],148:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -18362,12 +19098,12 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var React = require('react/addons');
-
+var ObserveUtils = require('observe-utils');
 var ObserverDecorator = require('../utils/observe-decorator');
 var ReactTypescript = require('../utils/react-typescript');
+var ReactControls = require('../utils/react-controller');
 var Todo = require('../model/todo');
-var registry = require('../registry');
-var TodoAppPM = require('./todoAppPM');
+var routes = require('../routes');
 var todoItem = require('./todoItem');
 var footer = require('./footer');
 
@@ -18377,22 +19113,25 @@ var TodoFooter = footer.TodoFooter;
 var html = React.DOM;
 var ENTER_KEY = 13;
 
+var TodoAppProps = (function () {
+    function TodoAppProps() {
+    }
+    return TodoAppProps;
+})();
+exports.TodoAppProps = TodoAppProps;
+
+var TodoAppState = (function () {
+    function TodoAppState() {
+    }
+    return TodoAppState;
+})();
+exports.TodoAppState = TodoAppState;
+
 var TodoAppClass = (function (_super) {
     __extends(TodoAppClass, _super);
     function TodoAppClass() {
         _super.apply(this, arguments);
     }
-    TodoAppClass.prototype.getObservedObjects = function () {
-        return [this.model, this.model.todos];
-    };
-
-    TodoAppClass.prototype.componentWillMount = function () {
-        // We inject the model by global references here
-        // However in more sophisticated architecture,
-        // we could use some kind of IOC container
-        this.model = registry.appModel;
-    };
-
     TodoAppClass.prototype.getNewField = function () {
         return this.refs['newField'].getDOMNode();
     };
@@ -18408,7 +19147,7 @@ var TodoAppClass = (function (_super) {
 
         var val = this.getNewField().value.trim();
         if (val) {
-            this.model.createTodo(val);
+            this.onCreate(val);
             this.getNewField().value = '';
         }
 
@@ -18417,27 +19156,46 @@ var TodoAppClass = (function (_super) {
 
     TodoAppClass.prototype.toggleAll = function (event) {
         var checked = event.target.checked;
-        this.model.toggleAll(checked);
+        this.onToggleAll(checked);
     };
 
     TodoAppClass.prototype.render = function () {
-        var footer = null, main = null, todos = this.model.todos;
+        var _this = this;
+        var footer = null, main = null, todos = this.props.todos, shownTodos = todos.filter(function (todo) {
+            switch (_this.props.nowShowing) {
+                case routes.ACTIVE_TODOS:
+                    return !todo.completed;
+                case routes.COMPLETED_TODOS:
+                    return todo.completed;
+                default:
+                    return true;
+            }
+        });
 
-        var todoItems = this.model.shownTodos.map(function (todo) {
+        var todoItems = shownTodos.map(function (todo) {
             return TodoItem({
                 key: todo.id,
                 todo: todo,
-                editing: this.model.editing === todo.id
+                editing: this.state.editing === todo.id
             });
         }, this);
 
-        if (todos.length) {
-            footer = TodoFooter({ nowShowing: this.model.nowShowing });
+        var activeTodoCount = todos.reduce(function (accum, todo) {
+            return todo.completed ? accum : accum + 1;
+        }, 0);
+        var completedCount = todos.length - activeTodoCount;
+
+        if (activeTodoCount || completedCount) {
+            footer = TodoFooter({
+                nowShowing: this.props.nowShowing,
+                activeTodoCount: activeTodoCount,
+                completedCount: completedCount
+            });
             main = html.section({ id: 'main' }, html.input({
                 id: 'toggle-all',
                 type: 'checkbox',
                 onChange: this.toggleAll,
-                checked: this.model.allCompleted
+                checked: completedCount && !activeTodoCount
             }), html.ul({ id: 'todo-list' }, todoItems));
         }
 
@@ -18452,87 +19210,9 @@ var TodoAppClass = (function (_super) {
 })(ReactTypescript.ReactComponentBase);
 exports.TodoAppClass = TodoAppClass;
 
-exports.TodoApp = ReactTypescript.registerComponent(TodoAppClass, ObserverDecorator);
+exports.TodoApp = ReactTypescript.registerComponent(TodoAppClass, ObserverDecorator, ReactControls.ControlledDecorator);
 
-},{"../model/todo":136,"../registry":137,"../utils/observe-decorator":139,"../utils/react-typescript":140,"./footer":142,"./todoAppPM":145,"./todoItem":146,"react/addons":6}],145:[function(require,module,exports){
-'use strict';
-var ObserveUtils = require('observe-utils');
-var Utils = require('../utils/utils');
-var List = ObserveUtils.List;
-var Todo = require('../model/todo');
-var routes = require('../routes');
-
-var TodoAppPM = (function () {
-    function TodoAppPM(todos) {
-        var _this = this;
-        this.todos = todos;
-        this.updateAllCompleted();
-        Utils.deepObserve(todos, function () {
-            return _this.updateAllCompleted();
-        });
-    }
-    TodoAppPM.prototype.updateAllCompleted = function () {
-        this.allCompleted = this.todos.every(function (todo) {
-            return todo.completed;
-        });
-    };
-
-    Object.defineProperty(TodoAppPM.prototype, "shownTodos", {
-        get: function () {
-            var _this = this;
-            return this.todos.filter(function (todo) {
-                switch (_this.nowShowing) {
-                    case routes.ACTIVE_TODOS:
-                        return !todo.completed;
-                    case routes.COMPLETED_TODOS:
-                        return todo.completed;
-                    default:
-                        return true;
-                }
-            });
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    TodoAppPM.prototype.createTodo = function (title) {
-        var todo = new Todo();
-        todo.title = title;
-        todo.completed = false;
-        todo.id = Utils.uuid();
-        this.todos.push(todo);
-    };
-
-    TodoAppPM.prototype.destroy = function (todo) {
-        var index = this.todos.indexOf(todo);
-        if (index !== -1) {
-            this.todos.splice(index, 1);
-        }
-    };
-
-    TodoAppPM.prototype.update = function (todo, title) {
-        todo.title = title;
-    };
-
-    TodoAppPM.prototype.toggle = function (todo) {
-        todo.completed = !todo.completed;
-    };
-
-    TodoAppPM.prototype.toggleAll = function (toggle) {
-        this.todos.forEach(function (todo) {
-            todo.completed = toggle;
-        });
-    };
-    return TodoAppPM;
-})();
-
-if (!window.nativeObjectObserve) {
-    ObserveUtils.defineObservableProperties(TodoAppPM.prototype, 'editing', 'todos', 'nowShowing', 'allCompleted');
-}
-
-module.exports = TodoAppPM;
-
-},{"../model/todo":136,"../routes":138,"../utils/utils":141,"observe-utils":4}],146:[function(require,module,exports){
+},{"../model/todo":139,"../routes":141,"../utils/observe-decorator":143,"../utils/react-controller":144,"../utils/react-typescript":145,"./footer":147,"./todoItem":149,"observe-utils":4,"react/addons":6}],149:[function(require,module,exports){
 'use strict';
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -18544,8 +19224,6 @@ var React = require('react/addons');
 var ObserverDecorator = require('../utils/observe-decorator');
 var ReactTypescript = require('../utils/react-typescript');
 var Todo = require('../model/todo');
-var registry = require('../registry');
-var TodoAppPM = require('./todoAppPM');
 var html = React.DOM;
 
 var ESCAPE_KEY = 27;
@@ -18560,26 +19238,15 @@ var TodoItemClass = (function (_super) {
         return this.refs['editField'].getDOMNode();
     };
 
-    TodoItemClass.prototype.getObservedObjects = function () {
-        return [this.props.todo];
-    };
-
-    TodoItemClass.prototype.componentWillMount = function () {
-        // We inject the model by global references here
-        // However in more sophisticated architecture,
-        // we could use some kind of IOC container
-        this.model = registry.appModel;
-    };
-
     TodoItemClass.prototype.handleSubmit = function () {
         if (this.props.editing) {
             var val = this.getEditField().value.trim();
             if (val) {
-                this.model.update(this.props.todo, val);
+                this.onUpdate(this.props.todo, val);
             } else {
-                this.onDestroy();
+                this.destroyHandler();
             }
-            this.model.editing = null;
+            this.onEdit(null);
             return false;
         }
     };
@@ -18594,23 +19261,23 @@ var TodoItemClass = (function (_super) {
     };
 
     TodoItemClass.prototype.handleEdit = function () {
-        this.model.editing = this.props.todo.id;
+        this.onEdit(this.props.todo.id);
     };
 
     TodoItemClass.prototype.handleKeyDown = function (event) {
         if (event.keyCode === ESCAPE_KEY) {
-            this.model.editing = null;
+            this.onEdit(null);
         } else if (event.keyCode === ENTER_KEY) {
             this.handleSubmit();
         }
     };
 
-    TodoItemClass.prototype.onToggle = function () {
-        this.model.toggle(this.props.todo);
+    TodoItemClass.prototype.onToggleChange = function () {
+        this.onToggle(this.props.todo);
     };
 
-    TodoItemClass.prototype.onDestroy = function () {
-        this.model.destroy(this.props.todo);
+    TodoItemClass.prototype.destroyHandler = function () {
+        this.onDestroy(this.props.todo);
     };
 
     TodoItemClass.prototype.render = function () {
@@ -18623,8 +19290,8 @@ var TodoItemClass = (function (_super) {
             className: 'toggle',
             type: 'checkbox',
             checked: this.props.todo.completed ? 'checked' : '',
-            onChange: this.onToggle
-        }), html.label({ onDoubleClick: this.handleEdit }, this.props.todo.title), html.button({ className: 'destroy', onClick: this.onDestroy })), html.input({
+            onChange: this.onToggleChange
+        }), html.label({ onDoubleClick: this.handleEdit }, this.props.todo.title), html.button({ className: 'destroy', onClick: this.destroyHandler })), html.input({
             ref: 'editField',
             className: 'edit',
             defaultValue: this.props.todo.title,
@@ -18638,4 +19305,4 @@ exports.TodoItemClass = TodoItemClass;
 
 exports.TodoItem = ReactTypescript.registerComponent(TodoItemClass, ObserverDecorator);
 
-},{"../model/todo":136,"../registry":137,"../utils/observe-decorator":139,"../utils/react-typescript":140,"./todoAppPM":145,"react/addons":6}]},{},[135])
+},{"../model/todo":139,"../utils/observe-decorator":143,"../utils/react-typescript":145,"react/addons":6}]},{},[136])

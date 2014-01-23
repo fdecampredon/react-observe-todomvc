@@ -22,7 +22,8 @@
     "setimmediate": "~1.0.1",
     "observe-shim": "~0.4.1",
     "observe-utils": "~0.3.2",
-    "director": "~1.2.2"
+    "director": "~1.2.2",
+    "weak-map": "~1.0.2"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

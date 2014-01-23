@@ -2,48 +2,41 @@
     
 import React = require('react/addons');
 import Utils = require('../utils/utils');
-import ObserverDecorator = require('../utils/observe-decorator');
+import ReactControls = require('../utils/react-controller');
 import ReactTypescript = require('../utils/react-typescript');
 import Todo = require('../model/todo');
 import routes = require('../routes');
 import registry = require('../registry');
-import FooterPM = require('./footerPM');
 var html = React.DOM;
 
 export interface TodoFooterProps {
     nowShowing: string;
+    activeTodoCount: number;
+    completedCount: number;
 }
 
-export class TodoFooterClass  extends ReactTypescript.ReactComponentBase<TodoFooterProps, void> {
+export class TodoFooterClass extends ReactTypescript.ReactComponentBase<TodoFooterProps, void> {
     
-    private model: FooterPM;
     
-    getObservedObjects() {
-        return [this.model];
+    onClearCompleted: () => void;
+    
+    shouldComponentUpdate(nextProps: TodoFooterProps, nextState: any): boolean {
+        return (
+            this.props.nowShowing !== nextProps.nowShowing ||
+            this.props.activeTodoCount !== nextProps.activeTodoCount ||
+            this.props.completedCount !== nextProps.completedCount
+        )
     }
-    
-    componentWillMount() {
-        
-        
-        // We injec the model by global references here
-        // However in more sophisticated architecture, 
-        // we could use some kind of IOC container
-        this.model = registry.footerModel;
-    }
-    
-    clearCompleted() {
-        this.model.clearCompleted();
-    }
-    
+ 
     render() {
-        var activeTodoWord = Utils.pluralize(this.model.activeTodoCount, 'item');
-        var clearButton = this.model.completedCount > 0 ? 
+        var activeTodoWord = Utils.pluralize(this.props.activeTodoCount, 'item');
+        var clearButton = this.props.completedCount > 0 ? 
                 html.button(
                     {
                         id: 'clear-completed',
-                        onClick: this.clearCompleted
+                        onClick: this.onClearCompleted
                     },
-                    ' Clear completed (' + this.model.completedCount + ') ' 
+                    ' Clear completed (' + this.props.completedCount + ') ' 
                 ):
                 null;
 
@@ -54,7 +47,7 @@ export class TodoFooterClass  extends ReactTypescript.ReactComponentBase<TodoFoo
             {id: 'footer'},
             html.span(
                 {id: 'todo-count'},
-                html.strong(null, this.model.activeTodoCount),
+                html.strong(null, this.props.activeTodoCount),
                 ' ' + activeTodoWord + ' left'
             ),
             html.ul(
@@ -69,4 +62,4 @@ export class TodoFooterClass  extends ReactTypescript.ReactComponentBase<TodoFoo
 }
 
 
-export var TodoFooter = ReactTypescript.registerComponent<TodoFooterClass, TodoFooterProps>(TodoFooterClass, ObserverDecorator);
+export var TodoFooter = ReactTypescript.registerComponent<TodoFooterClass, TodoFooterProps>(TodoFooterClass, ReactControls.ControlledDecorator);

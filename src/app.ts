@@ -6,10 +6,14 @@ import routes = require('./routes');
 import registry = require('./registry');
 import Utils = require('./utils/utils');
 import Todo = require('./model/todo');
-import TodoAppPM = require('./views/todoAppPM');
-import FooterPM = require('./views/footerPM');
+import ModelWrapper = require('./utils/model-wrapper');
+import control = require('./utils/react-controller');
+import FooterController = require('./controllers/footerController');
+import TodoAppController = require('./controllers/appController');
 import app = require('./views/todoApp');
-import ModelWrapper = require('model/model');
+import footer = require('./views/footer');
+import item = require('./views/todoItem');
+
 
 
 declare var require:any;
@@ -37,6 +41,11 @@ var todos: ObserveUtils.List<Todo> = List.fromArray(todoArr);
 
 (<any>todos).id = "todoList";
 
+var rootModel = {
+    todos: todos,
+    nowShowing : window.location.hash
+}
+
 var modelWrapper = new ModelWrapper(todos);
 modelWrapper.addChangeHandler(() => {
     Utils.store('react-observe-todos', todos);
@@ -46,25 +55,25 @@ modelWrapper.addChangeHandler(() => {
 });
 
 
-registry.appModel = new TodoAppPM(todos);
-registry.footerModel = new FooterPM(todos);
-
+control.ControllerRegistry.instance.registerController(footer.TodoFooterClass, new FooterController(todos));
+control.ControllerRegistry.instance.registerController(app.TodoAppClass, new TodoAppController(todos));
+control.ControllerRegistry.instance.registerController(item.TodoItemClass, new TodoAppController(todos));
 
 
 var router: any = new Router({
     '/': function () {
-        registry.appModel.nowShowing = routes.ALL_TODOS;
+        rootModel.nowShowing = routes.ALL_TODOS;
     },
     '/active': function () {
-        registry.appModel.nowShowing = routes.ACTIVE_TODOS;
+        rootModel.nowShowing = routes.ACTIVE_TODOS;
     },
     '/completed': function () {
-        registry.appModel.nowShowing = routes.COMPLETED_TODOS;
+        rootModel.nowShowing = routes.COMPLETED_TODOS;
     }
 });
 router.init();
 
-var application = app.TodoApp();
+var application = app.TodoApp(rootModel);
 React.renderComponent(application, document.getElementById('todoapp'));
 React.renderComponent(html.div(
     null,

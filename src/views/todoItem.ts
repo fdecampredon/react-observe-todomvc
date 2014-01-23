@@ -4,8 +4,6 @@ import React = require('react/addons');
 import ObserverDecorator = require('../utils/observe-decorator');
 import ReactTypescript = require('../utils/react-typescript');
 import Todo = require('../model/todo');
-import registry = require('../registry');
-import TodoAppPM = require('./todoAppPM');
 var html = React.DOM;
 
 var ESCAPE_KEY = 27;
@@ -19,32 +17,24 @@ export interface TodoItemProps {
 
 
 export class TodoItemClass extends ReactTypescript.ReactComponentBase<TodoItemProps, void> {
-    model: TodoAppPM;
+    onUpdate: (todo: Todo, title: string) => void;
+    onEdit: (id: string) => void;
+    onToggle: (todo: Todo) => void;
+    onDestroy: (todo: Todo) => void;
     
     getEditField() {
         return (<HTMLInputElement>this.refs['editField'].getDOMNode());
     }
-    
-    getObservedObjects() {
-        return [this.props.todo];
-    }
-    
-    componentWillMount() {
-        // We inject the model by global references here
-        // However in more sophisticated architecture, 
-        // we could use some kind of IOC container
-        this.model = registry.appModel;
-    }
-    
+
     handleSubmit() {
         if (this.props.editing) {
             var val = this.getEditField().value.trim();
             if (val) {
-                this.model.update(this.props.todo, val);
+                this.onUpdate(this.props.todo, val);
             } else {
-                this.onDestroy();
+                this.destroyHandler();
             }
-            this.model.editing = null;
+            this.onEdit(null);
             return false;
         }
     }
@@ -59,23 +49,23 @@ export class TodoItemClass extends ReactTypescript.ReactComponentBase<TodoItemPr
     }
 
     handleEdit() {
-        this.model.editing = this.props.todo.id;
+        this.onEdit(this.props.todo.id);
     }
 
     handleKeyDown(event: React.KeyboardEvent) {
         if (event.keyCode === ESCAPE_KEY) {
-            this.model.editing = null;
+            this.onEdit(null);
         } else if (event.keyCode === ENTER_KEY) {
             this.handleSubmit();
         }
     }
     
-    onToggle() {
-        this.model.toggle(this.props.todo);
+    onToggleChange() {
+        this.onToggle(this.props.todo);
     }
     
-    onDestroy() {
-        this.model.destroy(this.props.todo);
+    destroyHandler() {
+        this.onDestroy(this.props.todo);
     }
     
     render() {
@@ -91,13 +81,13 @@ export class TodoItemClass extends ReactTypescript.ReactComponentBase<TodoItemPr
                     className: 'toggle',
                     type: 'checkbox',
                     checked: this.props.todo.completed ? 'checked' : '',
-                    onChange: this.onToggle
+                    onChange: this.onToggleChange
                 }),
                 html.label(
                     {onDoubleClick: this.handleEdit},
                     this.props.todo.title
                 ),
-                html.button({className: 'destroy', onClick: this.onDestroy})  
+                html.button({className: 'destroy', onClick: this.destroyHandler})  
             ),
             html.input({
                 ref: 'editField',

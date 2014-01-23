@@ -1,6 +1,4 @@
 
-import TodoAppPM = require('./views/todoAppPM');
-import FooterPM = require('./views/footerPM');
+import ModelWrapper = require('./utils/model-wrapper');
 
-export var appModel: TodoAppPM;
-export var footerModel: FooterPM;
+export var modelWrapper: ModelWrapper;
