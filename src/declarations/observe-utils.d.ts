@@ -2,7 +2,7 @@ declare module ObserveUtils {
     export function defineObservableProperties(target: {}, ...rest: any[]): void;
 
     export class List<T> {
-        static observe(list: List<any>, callbak: () => void): void;
+        static observe(list: List<any>, callbak: (changes: any[]) => void): void;
         static fromArray<T>( array: T[]): List<T>;
             
         set(index: number, value: T): void;

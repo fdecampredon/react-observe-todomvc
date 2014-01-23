@@ -9,12 +9,13 @@ import Todo = require('./model/todo');
 import TodoAppPM = require('./views/todoAppPM');
 import FooterPM = require('./views/footerPM');
 import app = require('./views/todoApp');
-
+import ModelWrapper = require('model/model');
 
 
 declare var require:any;
 declare var setImmediate: any;
 
+require('weak-map');
 if (typeof (<any>Object).observe !== 'function') {
     require('observe-shim');
     if (typeof setImmediate !== 'function') {
@@ -34,11 +35,14 @@ var todoArr: Todo[] = Utils.store('react-observe-todos').map((todo: any) => {
 
 var todos: ObserveUtils.List<Todo> = List.fromArray(todoArr);
 
+(<any>todos).id = "todoList";
 
-
-// A nice way to listen any changes in our collections and save it
-Utils.deepObserve(todos, function () {
+var modelWrapper = new ModelWrapper(todos);
+modelWrapper.addChangeHandler(() => {
     Utils.store('react-observe-todos', todos);
+    requestAnimationFrame(() => {
+        (<any>application).performUpdateIfNecessary();
+    });
 });
 
 
@@ -60,8 +64,8 @@ var router: any = new Router({
 });
 router.init();
 
-
-React.renderComponent(app.TodoApp(), document.getElementById('todoapp'));
+var application = app.TodoApp();
+React.renderComponent(application, document.getElementById('todoapp'));
 React.renderComponent(html.div(
     null,
     html.p(null, 'Double-click to edit a todo'),
