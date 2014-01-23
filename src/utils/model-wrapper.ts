@@ -139,12 +139,12 @@ class ModelWrapper {
             if (isArray(target)) {
                 Observer.unobserve(target, this.listObserver);
                 (<any []> target).forEach(item => {
-                    this.observe(item);
+                    this.unobserve(item);
                 });
             } else {
                 Observer.unobserve(target, this.objectObserver);
                 Object.keys(target).forEach(key => {
-                    this.observe(target[key]);
+                    this.unobserve(target[key]);
                 });
             }
         }

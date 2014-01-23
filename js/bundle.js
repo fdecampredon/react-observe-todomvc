@@ -18756,12 +18756,12 @@ var ModelWrapper = (function () {
             if (isArray(target)) {
                 Observer.unobserve(target, this.listObserver);
                 target.forEach(function (item) {
-                    _this.observe(item);
+                    _this.unobserve(item);
                 });
             } else {
                 Observer.unobserve(target, this.objectObserver);
                 Object.keys(target).forEach(function (key) {
-                    _this.observe(target[key]);
+                    _this.unobserve(target[key]);
                 });
             }
         }
