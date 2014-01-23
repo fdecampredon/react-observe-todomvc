@@ -30,6 +30,12 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProp
     onCreate: (title: string) => void;
     onToggleAll: (check: boolean) => void;
     
+    getInitialState() {
+        return {
+            editing: null
+        }
+    }
+    
     getNewField() {
         return (<HTMLInputElement>this.refs['newField'].getDOMNode());
     }

@@ -19,7 +19,7 @@ import item = require('./views/todoItem');
 declare var require:any;
 declare var setImmediate: any;
 
-require('weak-map');
+(<any>window).WeakMap = require('weak-map');
 if (typeof (<any>Object).observe !== 'function') {
     require('observe-shim');
     if (typeof setImmediate !== 'function') {
@@ -46,11 +46,12 @@ var rootModel = {
     nowShowing : window.location.hash
 }
 
-var modelWrapper = new ModelWrapper(todos);
-modelWrapper.addChangeHandler(() => {
+registry.modelWrapper = new ModelWrapper(rootModel);
+registry.modelWrapper.addChangeHandler(() => {
     Utils.store('react-observe-todos', todos);
     requestAnimationFrame(() => {
-        (<any>application).performUpdateIfNecessary();
+        //(<any>application).performUpdateIfNecessary();
+        application.forceUpdate();
     });
 });
 

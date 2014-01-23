@@ -18434,7 +18434,7 @@ var process=require("__browserify_process"),global=typeof self !== "undefined" ?
 var React = require('react/addons');
 var ObserveUtils = require('observe-utils');
 var routes = require('./routes');
-
+var registry = require('./registry');
 var Utils = require('./utils/utils');
 var Todo = require('./model/todo');
 var ModelWrapper = require('./utils/model-wrapper');
@@ -18445,7 +18445,7 @@ var app = require('./views/todoApp');
 var footer = require('./views/footer');
 var item = require('./views/todoItem');
 
-require('weak-map');
+window.WeakMap = require('weak-map');
 if (typeof Object.observe !== 'function') {
     require('observe-shim');
     if (typeof setImmediate !== 'function') {
@@ -18468,11 +18468,12 @@ var rootModel = {
     nowShowing: window.location.hash
 };
 
-var modelWrapper = new ModelWrapper(todos);
-modelWrapper.addChangeHandler(function () {
+registry.modelWrapper = new ModelWrapper(rootModel);
+registry.modelWrapper.addChangeHandler(function () {
     Utils.store('react-observe-todos', todos);
     requestAnimationFrame(function () {
-        application.performUpdateIfNecessary();
+        //(<any>application).performUpdateIfNecessary();
+        application.forceUpdate();
     });
 });
 
@@ -18497,7 +18498,7 @@ var application = app.TodoApp(rootModel);
 React.renderComponent(application, document.getElementById('todoapp'));
 React.renderComponent(html.div(null, html.p(null, 'Double-click to edit a todo'), html.p(null, 'Created by ', html.a({ href: 'http://github.com/petehunt/' }, 'petehunt')), html.p(null, 'Part of ', html.a({ href: 'http://todomvc.com' }, 'TodoMVC'))), document.getElementById('info'));
 
-},{"./controllers/appController":137,"./controllers/footerController":138,"./model/todo":139,"./routes":141,"./utils/model-wrapper":142,"./utils/react-controller":144,"./utils/utils":146,"./views/footer":147,"./views/todoApp":148,"./views/todoItem":149,"director":2,"observe-shim":3,"observe-utils":4,"react/addons":6,"setimmediate":134,"weak-map":135}],137:[function(require,module,exports){
+},{"./controllers/appController":137,"./controllers/footerController":138,"./model/todo":139,"./registry":140,"./routes":141,"./utils/model-wrapper":142,"./utils/react-controller":144,"./utils/utils":146,"./views/footer":147,"./views/todoApp":148,"./views/todoItem":149,"director":2,"observe-shim":3,"observe-utils":4,"react/addons":6,"setimmediate":134,"weak-map":135}],137:[function(require,module,exports){
 'use strict';
 var ObserveUtils = require('observe-utils');
 var Utils = require('../utils/utils');
@@ -18634,6 +18635,7 @@ exports.ACTIVE_TODOS = 'active';
 exports.COMPLETED_TODOS = 'completed';
 
 },{}],142:[function(require,module,exports){
+'use strict';
 var ObserveUtils = require('observe-utils');
 
 var Observer = Object;
@@ -18656,9 +18658,10 @@ var ModelWrapper = (function () {
         this.idField = idField;
         this.map = new WeakMap();
         this.revHelper = 0;
+        this.callbacks = [];
         this.changeHandler = function () {
             _this.callbacks.forEach(function (callback) {
-                return callback;
+                return callback();
             });
         };
         this.listObserver = function (changes) {
@@ -18667,20 +18670,20 @@ var ModelWrapper = (function () {
                 if (change.type === 'splice') {
                     var spliceChange = change;
                     if (spliceChange.removed) {
-                        spliceChange.removed.forEach(this.unobserve);
+                        spliceChange.removed.forEach(_this.unobserve);
                     }
                     if (spliceChange.addedCount > 0) {
                         var i = 0, l = spliceChange.index + spliceChange.addedCount;
                         for (i = spliceChange.index; i < l; i++) {
-                            this.unobserve(spliceChange.object[i]);
+                            _this.unobserve(spliceChange.object[i]);
                         }
                     }
                 } else if (change.type === 'update') {
                     var objectChange = change;
                     if (objectChange.oldValue) {
-                        this.unobserve(objectChange.oldValue);
+                        _this.unobserve(objectChange.oldValue);
                     }
-                    this.observe(objectChange.object[objectChange.name]);
+                    _this.observe(objectChange.object[objectChange.name]);
                 }
                 target = change.object;
             });
@@ -18691,9 +18694,9 @@ var ModelWrapper = (function () {
             var target;
             changes.forEach(function (change) {
                 if (change.oldValue) {
-                    this.unobserve(change.oldValue);
+                    _this.unobserve(change.oldValue);
                 }
-                this.observe(change.object[change.name]);
+                _this.observe(change.object[change.name]);
                 target = change.object;
             });
             _this.update(target, changes);
@@ -18709,7 +18712,7 @@ var ModelWrapper = (function () {
     };
 
     ModelWrapper.prototype.getRev = function (target) {
-        return this.map.has(target) && this.getRev(target).rev;
+        return isObservable(target) && this.map.has(target) && this.map.get(target).rev;
     };
 
     ModelWrapper.prototype.addChangeHandler = function (callback) {
@@ -18717,6 +18720,7 @@ var ModelWrapper = (function () {
     };
 
     ModelWrapper.prototype.observe = function (target, parent) {
+        var _this = this;
         if (isObservable(target)) {
             this.map.set(target, {
                 rev: target[this.idField] + (this.revHelper++),
@@ -18727,29 +18731,30 @@ var ModelWrapper = (function () {
             if (isArray(target)) {
                 ObserveUtils.List.observe(target, this.listObserver);
                 target.forEach(function (item) {
-                    this.observe(item);
+                    _this.observe(item, target);
                 });
             } else {
                 Observer.observe(target, this.objectObserver);
                 Object.keys(target).forEach(function (key) {
-                    this.observe(target[key]);
+                    _this.observe(target[key], target);
                 });
             }
         }
     };
 
     ModelWrapper.prototype.unobserve = function (target) {
+        var _this = this;
         if (isObservable(target)) {
             this.map.delete(target);
             if (isArray(target)) {
                 Observer.unobserve(target, this.listObserver);
                 target.forEach(function (item) {
-                    this.observe(item);
+                    _this.observe(item);
                 });
             } else {
                 Observer.unobserve(target, this.objectObserver);
                 Object.keys(target).forEach(function (key) {
-                    this.observe(target[key]);
+                    _this.observe(target[key]);
                 });
             }
         }
@@ -18761,7 +18766,7 @@ var ModelWrapper = (function () {
         //later use push(desc.changes, changes);
         desc.rev = target[this.idField] + (this.revHelper++);
         if (desc.parent) {
-            this.update(parent);
+            this.update(desc.parent);
         }
     };
     return ModelWrapper;
@@ -18925,6 +18930,16 @@ var DecoratorRunnerMixin = (function () {
                 decorator.componentWillMount();
             }
         });
+        if (!this.shouldComponentUpdate) {
+            this.shouldComponentUpdate = function (nextProps, nextState) {
+                return _this.__decoratorsInstances__.some(function (decorator) {
+                    if (decorator.shouldComponentUpdate) {
+                        return decorator.shouldComponentUpdate(nextProps, nextState);
+                    }
+                    return false;
+                });
+            };
+        }
     };
 
     DecoratorRunnerMixin.prototype.componentDidMount = function () {
@@ -18940,15 +18955,6 @@ var DecoratorRunnerMixin = (function () {
             if (decorator.componentWillReceiveProps) {
                 decorator.componentWillReceiveProps(nextProps);
             }
-        });
-    };
-
-    DecoratorRunnerMixin.prototype.shouldComponentUpdate = function (nextProps, nextState) {
-        return this.__decoratorsInstances__.some(function (decorator) {
-            if (decorator.shouldComponentUpdate) {
-                return decorator.shouldComponentUpdate(nextProps, nextState);
-            }
-            return false;
         });
     };
 
@@ -18992,13 +18998,13 @@ function registerComponent(componentClass) {
     spec.mixins = mixins;
     delete spec['constructor'];
     var componentFactory = React.createClass(spec);
-    spec.displayName = componentClass['name'];
     return function (properties) {
         var component = componentFactory.apply(this, arguments);
         componentClass.call(component);
         if (decorators.length) {
             component.__decoratorsClass__ = decorators;
         }
+        component.displayName = componentClass['name'];
         return component;
     };
 }
@@ -19132,6 +19138,12 @@ var TodoAppClass = (function (_super) {
     function TodoAppClass() {
         _super.apply(this, arguments);
     }
+    TodoAppClass.prototype.getInitialState = function () {
+        return {
+            editing: null
+        };
+    };
+
     TodoAppClass.prototype.getNewField = function () {
         return this.refs['newField'].getDOMNode();
     };

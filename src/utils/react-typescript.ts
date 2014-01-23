@@ -91,6 +91,16 @@ class DecoratorRunnerMixin implements React.ReactMixin<any,any> {
                 decorator.componentWillMount();
             }
         });
+        if (!this.shouldComponentUpdate) {
+            this.shouldComponentUpdate = (nextProps: any, nextState: any) => {
+                return this.__decoratorsInstances__.some(decorator => {
+                    if (decorator.shouldComponentUpdate) {
+                        return decorator.shouldComponentUpdate(nextProps, nextState);
+                    }
+                    return false;
+                });
+            }
+        }
     }
 
     componentDidMount(): void {
@@ -109,14 +119,7 @@ class DecoratorRunnerMixin implements React.ReactMixin<any,any> {
         });
     }
     
-    shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-        return this.__decoratorsInstances__.some(decorator => {
-            if (decorator.shouldComponentUpdate) {
-                return decorator.shouldComponentUpdate(nextProps, nextState);
-            }
-            return false;
-        });
-    }
+    shouldComponentUpdate:(nextProps: any, nextState: any) => boolean;
     
     componentWillUpdate(nextProps: any, nextState: any): void {
         this.__decoratorsInstances__.forEach(decorator => {
@@ -159,13 +162,13 @@ export function registerComponent<C extends  ReactComponent<P, any>, P>(
     spec.mixins = mixins;
     delete spec['constructor'];
     var componentFactory: Factory<P, C>  = (<any>React.createClass(spec));
-    spec.displayName = componentClass['name'];
     return function (properties?: P) {
         var component = componentFactory.apply(this, arguments);
         componentClass.call(component);
         if (decorators.length) {
             component.__decoratorsClass__ = decorators;
         }
+        component.displayName = componentClass['name'];
         return component;
     }
 }

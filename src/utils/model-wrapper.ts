@@ -1,3 +1,5 @@
+'use strict';
+
 import ObserveUtils = require('observe-utils');
 
 
@@ -39,7 +41,7 @@ class ModelWrapper {
     
     private map = new WeakMap<any, { rev:string; changes: ChangeRecord[]; parent: any}>();
     private revHelper: number = 0;
-    private callbacks: { (): void }[]
+    private callbacks: { (): void }[] = [];
     
     constructor(
         private root: any,
@@ -56,7 +58,7 @@ class ModelWrapper {
     }
     
     getRev(target: any) {
-        return this.map.has(target) && this.getRev(target).rev;
+        return isObservable(target) && this.map.has(target) && this.map.get(target).rev;
     }
     
     addChangeHandler(callback: () => void) {
@@ -64,12 +66,12 @@ class ModelWrapper {
     }
     
     private changeHandler = () => {
-        this.callbacks.forEach(callback => callback);
+        this.callbacks.forEach(callback => callback());
     }
     
     private listObserver = (changes: ChangeRecord[])  => {
         var target: any;
-        changes.forEach(function (change) {
+        changes.forEach(change => {
             if (change.type === 'splice') {
                 var spliceChange =  <SpliceChangeRecord> change;
                 if (spliceChange.removed) {
@@ -96,7 +98,7 @@ class ModelWrapper {
     
     private objectObserver = (changes: ObjectChangeRecord[]) => {
         var target: any;
-        changes.forEach(function (change) {
+        changes.forEach(change => {
             if (change.oldValue) {
                 this.unobserve(change.oldValue);
             }
@@ -119,13 +121,13 @@ class ModelWrapper {
             
             if (isArray(target)) {
                 ObserveUtils.List.observe(target, this.listObserver);
-                (<any []> target).forEach(function (item) {
-                    this.observe(item);
+                (<any []> target).forEach(item => {
+                    this.observe(item, target);
                 });
             } else {
                 Observer.observe(target, this.objectObserver);
-                Object.keys(target).forEach(function (key) {
-                    this.observe(target[key]);
+                Object.keys(target).forEach(key => {
+                    this.observe(target[key], target);
                 });
             }
         }
@@ -136,12 +138,12 @@ class ModelWrapper {
             this.map.delete(target);
             if (isArray(target)) {
                 Observer.unobserve(target, this.listObserver);
-                (<any []> target).forEach(function (item) {
+                (<any []> target).forEach(item => {
                     this.observe(item);
                 });
             } else {
                 Observer.unobserve(target, this.objectObserver);
-                Object.keys(target).forEach(function (key) {
+                Object.keys(target).forEach(key => {
                     this.observe(target[key]);
                 });
             }
@@ -153,7 +155,7 @@ class ModelWrapper {
         //later use push(desc.changes, changes);
         desc.rev = target[this.idField] + (this.revHelper++);
         if (desc.parent) {
-            this.update(parent)
+            this.update(desc.parent)
         }
     }
 }
