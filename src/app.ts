@@ -43,8 +43,9 @@ var todos: ObserveUtils.List<Todo> = List.fromArray(todoArr);
 
 var rootModel = {
     todos: todos,
-    nowShowing : window.location.hash
+    nowShowing : routes.ALL_TODOS
 }
+ObserveUtils.defineObservableProperties(rootModel, 'todos', 'nowShowing');
 
 registry.modelWrapper = new ModelWrapper(rootModel);
 registry.modelWrapper.addChangeHandler(() => {
@@ -55,10 +56,10 @@ registry.modelWrapper.addChangeHandler(() => {
     });
 });
 
-
+var appContoller = new TodoAppController(todos);
 control.ControllerRegistry.instance.registerController(footer.TodoFooterClass, new FooterController(todos));
-control.ControllerRegistry.instance.registerController(app.TodoAppClass, new TodoAppController(todos));
-control.ControllerRegistry.instance.registerController(item.TodoItemClass, new TodoAppController(todos));
+control.ControllerRegistry.instance.registerController(app.TodoAppClass, appContoller);
+control.ControllerRegistry.instance.registerController(item.TodoItemClass, appContoller);
 
 
 var router: any = new Router({

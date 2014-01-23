@@ -75,7 +75,7 @@ class ModelWrapper {
             if (change.type === 'splice') {
                 var spliceChange =  <SpliceChangeRecord> change;
                 if (spliceChange.removed) {
-                    spliceChange.removed.forEach(this.unobserve);
+                    spliceChange.removed.forEach(this.unobserve, this);
                 }
                 if (spliceChange.addedCount > 0) {
                     var i = 0, l = spliceChange.index + spliceChange.addedCount;

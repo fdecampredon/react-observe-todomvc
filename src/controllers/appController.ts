@@ -22,7 +22,11 @@ class TodoAppController {
             this.application.onCreate = this.createTodo;
             this.application.onToggleAll = this.toggleAll;
         } else {
-        
+            var item: item.TodoItemClass = component;
+            item.onDestroy = this.destroy;
+            item.onEdit = this.edit;
+            item.onToggle = this.toggle;
+            item.onUpdate = this.update;
         }
     }
     
@@ -33,10 +37,10 @@ class TodoAppController {
             this.application = null;
         } else {
             var item: item.TodoItemClass = component;
-            item.onDestroy = this.destroy;
-            item.onEdit = this.edit;
-            item.onToggle = this.toggle;
-            item.onUpdate = this.update;
+            item.onDestroy = null;
+            item.onEdit = null;
+            item.onToggle = null;
+            item.onUpdate = null;
         }
     }
 

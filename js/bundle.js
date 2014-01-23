@@ -18465,8 +18465,9 @@ todos.id = "todoList";
 
 var rootModel = {
     todos: todos,
-    nowShowing: window.location.hash
+    nowShowing: routes.ALL_TODOS
 };
+ObserveUtils.defineObservableProperties(rootModel, 'todos', 'nowShowing');
 
 registry.modelWrapper = new ModelWrapper(rootModel);
 registry.modelWrapper.addChangeHandler(function () {
@@ -18477,9 +18478,10 @@ registry.modelWrapper.addChangeHandler(function () {
     });
 });
 
+var appContoller = new TodoAppController(todos);
 control.ControllerRegistry.instance.registerController(footer.TodoFooterClass, new FooterController(todos));
-control.ControllerRegistry.instance.registerController(app.TodoAppClass, new TodoAppController(todos));
-control.ControllerRegistry.instance.registerController(item.TodoItemClass, new TodoAppController(todos));
+control.ControllerRegistry.instance.registerController(app.TodoAppClass, appContoller);
+control.ControllerRegistry.instance.registerController(item.TodoItemClass, appContoller);
 
 var router = new Router({
     '/': function () {
@@ -18544,6 +18546,11 @@ var TodoAppController = (function () {
             this.application.onCreate = this.createTodo;
             this.application.onToggleAll = this.toggleAll;
         } else {
+            var item = component;
+            item.onDestroy = this.destroy;
+            item.onEdit = this.edit;
+            item.onToggle = this.toggle;
+            item.onUpdate = this.update;
         }
     };
 
@@ -18554,10 +18561,10 @@ var TodoAppController = (function () {
             this.application = null;
         } else {
             var item = component;
-            item.onDestroy = this.destroy;
-            item.onEdit = this.edit;
-            item.onToggle = this.toggle;
-            item.onUpdate = this.update;
+            item.onDestroy = null;
+            item.onEdit = null;
+            item.onToggle = null;
+            item.onUpdate = null;
         }
     };
     return TodoAppController;
@@ -18670,7 +18677,7 @@ var ModelWrapper = (function () {
                 if (change.type === 'splice') {
                     var spliceChange = change;
                     if (spliceChange.removed) {
-                        spliceChange.removed.forEach(_this.unobserve);
+                        spliceChange.removed.forEach(_this.unobserve, _this);
                     }
                     if (spliceChange.addedCount > 0) {
                         var i = 0, l = spliceChange.index + spliceChange.addedCount;
@@ -19235,6 +19242,7 @@ var __extends = this.__extends || function (d, b) {
 var React = require('react/addons');
 var ObserverDecorator = require('../utils/observe-decorator');
 var ReactTypescript = require('../utils/react-typescript');
+var ReactControls = require('../utils/react-controller');
 var Todo = require('../model/todo');
 var html = React.DOM;
 
@@ -19315,6 +19323,6 @@ var TodoItemClass = (function (_super) {
 })(ReactTypescript.ReactComponentBase);
 exports.TodoItemClass = TodoItemClass;
 
-exports.TodoItem = ReactTypescript.registerComponent(TodoItemClass, ObserverDecorator);
+exports.TodoItem = ReactTypescript.registerComponent(TodoItemClass, ObserverDecorator, ReactControls.ControlledDecorator);
 
-},{"../model/todo":139,"../utils/observe-decorator":143,"../utils/react-typescript":145,"react/addons":6}]},{},[136])
+},{"../model/todo":139,"../utils/observe-decorator":143,"../utils/react-controller":144,"../utils/react-typescript":145,"react/addons":6}]},{},[136])

@@ -3,6 +3,7 @@
 import React = require('react/addons');
 import ObserverDecorator = require('../utils/observe-decorator');
 import ReactTypescript = require('../utils/react-typescript');
+import ReactControls = require('../utils/react-controller');
 import Todo = require('../model/todo');
 var html = React.DOM;
 
@@ -100,5 +101,5 @@ export class TodoItemClass extends ReactTypescript.ReactComponentBase<TodoItemPr
     }
 }
 
-export var TodoItem = ReactTypescript.registerComponent<TodoItemClass, TodoItemProps>(TodoItemClass, ObserverDecorator);
+export var TodoItem = ReactTypescript.registerComponent<TodoItemClass, TodoItemProps>(TodoItemClass, ObserverDecorator, ReactControls.ControlledDecorator);
 
