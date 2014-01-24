@@ -80,7 +80,7 @@ class ModelWrapper {
                 if (spliceChange.addedCount > 0) {
                     var i = 0, l = spliceChange.index + spliceChange.addedCount;
                     for (i = spliceChange.index; i < l; i++) {
-                        this.unobserve(spliceChange.object[i]);
+                        this.observe(spliceChange.object[i]);
                     }
                 }
             } else if (change.type === 'update') {
@@ -91,8 +91,8 @@ class ModelWrapper {
                 this.observe(objectChange.object[objectChange.name]);
             }
             target = change.object;
+            this.update(target, changes);
         });
-        this.update(target, changes);
         this.changeHandler();
     }
     
@@ -104,8 +104,8 @@ class ModelWrapper {
             }
             this.observe(change.object[change.name]);
             target = change.object;
+            this.update(target, changes);
         });
-        this.update(target, changes);
         this.changeHandler();
     }
     

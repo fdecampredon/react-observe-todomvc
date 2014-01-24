@@ -18684,7 +18684,7 @@ var ModelWrapper = (function () {
                     if (spliceChange.addedCount > 0) {
                         var i = 0, l = spliceChange.index + spliceChange.addedCount;
                         for (i = spliceChange.index; i < l; i++) {
-                            _this.unobserve(spliceChange.object[i]);
+                            _this.observe(spliceChange.object[i]);
                         }
                     }
                 } else if (change.type === 'update') {
@@ -18695,8 +18695,8 @@ var ModelWrapper = (function () {
                     _this.observe(objectChange.object[objectChange.name]);
                 }
                 target = change.object;
+                _this.update(target, changes);
             });
-            _this.update(target, changes);
             _this.changeHandler();
         };
         this.objectObserver = function (changes) {
@@ -18707,8 +18707,8 @@ var ModelWrapper = (function () {
                 }
                 _this.observe(change.object[change.name]);
                 target = change.object;
+                _this.update(target, changes);
             });
-            _this.update(target, changes);
             _this.changeHandler();
         };
         if (!isObservable(root)) {
@@ -18787,31 +18787,51 @@ module.exports = ModelWrapper;
 'use strict';
 var registry = require('../registry');
 
-function computeKey(props) {
-    return Object.keys(props).filter(function (prop) {
-        return prop !== '__owner__' && prop !== 'children';
-    }).sort().map(function (prop) {
-        return registry.modelWrapper.getRev(props[prop]);
-    }).join('');
+function shallowEqual(objA, objB) {
+    if (objA === objB) {
+        return true;
+    }
+    var key;
+
+    for (key in objA) {
+        if (objA.hasOwnProperty(key) && (!objB.hasOwnProperty(key) || objA[key] !== objB[key])) {
+            return false;
+        }
+    }
+
+    for (key in objB) {
+        if (objB.hasOwnProperty(key) && !objA.hasOwnProperty(key)) {
+            return false;
+        }
+    }
+    return true;
 }
 
+function computeProps(props) {
+    return Object.keys(props).sort().reduce(function (computed, prop) {
+        if (prop !== '__owner__' && prop !== 'children') {
+            computed[prop] = registry.modelWrapper.getRev(props[prop]) || props[prop];
+        }
+        return computed;
+    }, {});
+}
 var ObserverDecorator = (function () {
     function ObserverDecorator(component) {
         this.component = component;
     }
     ObserverDecorator.prototype.componentDidMount = function () {
-        this._key = computeKey(this.component.props);
+        this._computeProps = computeProps(this.component.props);
     };
 
     // We consider that components should react to changes dispatched by Object.observe
     // or to props change, if we want to track properties of objects in our 'props'
     // we just observe them
     ObserverDecorator.prototype.shouldComponentUpdate = function (nextProps, nextState) {
-        return this._key !== computeKey(nextProps);
+        return !shallowEqual(this._computeProps, computeProps(nextProps)) || !shallowEqual(this.component.state, nextState);
     };
 
     ObserverDecorator.prototype.componentDidUpdate = function () {
-        this._key = computeKey(this.component.props);
+        this._computeProps = computeProps(this.component.props);
     };
     return ObserverDecorator;
 })();
