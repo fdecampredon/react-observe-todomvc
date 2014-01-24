@@ -11,13 +11,9 @@ var ESCAPE_KEY = 27;
 var ENTER_KEY = 13;
 
 
-export interface TodoItemProps {
-    todo: Todo;
-    editing: boolean;
-}
 
-
-export class TodoItemClass extends ReactTypescript.ReactComponentBase<TodoItemProps, void> {
+class TodoItem extends ReactTypescript.ReactComponentBase< { todo: Todo; editing: boolean; }, void > {
+    
     onUpdate: (todo: Todo, title: string) => void;
     onEdit: (id: string) => void;
     onToggle: (todo: Todo) => void;
@@ -101,5 +97,8 @@ export class TodoItemClass extends ReactTypescript.ReactComponentBase<TodoItemPr
     }
 }
 
-export var TodoItem = ReactTypescript.registerComponent<TodoItemClass, TodoItemProps>(TodoItemClass, ObserverDecorator, ReactControls.ControlledDecorator);
+TodoItem.decorate(ObserverDecorator, ReactControls.ControlledDecorator);
+TodoItem.register();
+export = TodoItem;
+
 

@@ -1,7 +1,7 @@
 'use strict';
     
 import Todo = require('../model/todo');
-import footer = require('../views/footer');
+import TodoFooter = require('../views/footer');
 
 
 class FooterController {
@@ -12,11 +12,11 @@ class FooterController {
         this.todos = todos;
     }
 
-    componentDidMount(footer: footer.TodoFooterClass) {
+    componentDidMount(footer: TodoFooter) {
         footer.onClearCompleted = this.clearCompleted;
     }
     
-    componentWillUnmount(footer: footer.TodoFooterClass) {
+    componentWillUnmount(footer: TodoFooter) {
         footer.onClearCompleted = null
     }
     

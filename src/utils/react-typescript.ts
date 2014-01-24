@@ -4,103 +4,50 @@
 import React = require('react/addons');
 
 export class ReactComponentBase<P, S> {
+    
+    constructor(props: P, ...childen: any[]) {
+        this.construct.apply(this, arguments);
+    }
+    
+    mixins: React.ReactMixin<any, any>[];
     props: P;
     state: S;
     refs: { [ref: string]: React.ReactComponent<any, any>; }
     getDOMNode(): Element {
         return null;
     }
-    
-    setProps(nextProps: P): void {
-        
-    }
-    
-    replaceProps(nextProps: P): void {
-        
-    }
-    
-    
-    transferPropsTo<C extends React.ReactComponent<P, any>>(target: C): C {
-        return target;
-    }
-    
-    setState(nextProps: S): void {
-        
-    }
-    
-    replaceState(nextProps: S): void {
-        
-    }
-    
-    forceUpdate(callback? : () => void) {
-        
-    }
+    setProps: (nextProps: P) => void;
+    replaceProps:(nextProps: P) => void
+    transferPropsTo:<C extends React.ReactComponent<P, any>>(target: C) => C
+    setState: (nextProps: S) => void
+    replaceState: (nextProps: S) => void;
+    forceUpdate: (callback? : () => void) => void;
+
+    private construct: (props: P, ...childen: any[]) => void
     
     
     static register() {
-        /*if (this === ReactComponentBase) {
+        if (this === ReactComponentBase) {
             throw new Error('ReactComponentBase should not be registred');
         }
         var spec = copy(this.prototype);
         delete spec['constructor'];
         var componentFactory: any  = (<any>React.createClass(<any>spec));
-        this.__factory__ = function (properties?: P) {
-            var component = componentFactory.apply(this, arguments);
-            this.call(component);
-            if (this.__decoratorsClass__ && this.__decoratorsClass__.length) {
-                component.__decoratorsClass__ = this.__decoratorsClass__;
-            }
-            component.displayName = this['name'];
-            return component;
-        }*/
+        this.prototype = componentFactory.componentConstructor.prototype;
+        this.prototype['constructor'] = this;
     }
     
-    private static  __decoratorsClass__: { new(component: ReactComponentBase<any, any>): ReactDecorator<any> }[];
-} 
-
-
-
-export function decorate<C extends  ReactComponent<P, any>, P>(
-            componentClass: { new(): C; prototype: C; __decoratorsClass__:{ new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[] }, 
-            ...decorators: { new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[]
-        ): void  {
+    private __decoratorsClass__: { new(c: ReactComponent<any, any>): ReactDecorator<any> }[];
     
-    if (!componentClass.__decoratorsClass__) {
-        componentClass.prototype.mixins = (componentClass.prototype.mixins || []).concat(DecoratorRunnerMixin.prototype);
-        componentClass.__decoratorsClass__ = decorators;
-    } else {
-        componentClass.__decoratorsClass__ = componentClass.__decoratorsClass__.concat(decorators);
-    }
-}
-
-
-export function registerComponent<C extends  ReactComponent<P, any>, P>(
-        componentClass: { new(): C; prototype: C; }, 
-        ...decorators: { new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[]
-    ): Factory<P,C> {
-    
-        
-    var mixins: React.ReactMixin<any, any>[] = (componentClass.prototype.mixins || []).slice(0);
-    if (decorators.length) {
-        mixins.push(DecoratorRunnerMixin.prototype);
-    }
-    
-    var spec = copy(componentClass.prototype);
-    spec.mixins = mixins;
-    delete spec['constructor'];
-    var componentFactory: Factory<P, C>  = (<any>React.createClass(spec));
-    return function (properties?: P) {
-        var component = componentFactory.apply(this, arguments);
-        componentClass.call(component);
-        if (decorators.length) {
-            component.__decoratorsClass__ = decorators;
+    static decorate(...decorators: { new(c: ReactComponent<any, any>): ReactDecorator<any> }[] ) {
+        if (!this.prototype.__decoratorsClass__ ) {
+            this.prototype.mixins = (this.prototype.mixins || []).concat(DecoratorRunnerMixin.prototype);
+            this.prototype.__decoratorsClass__ = decorators;
+        } else {
+            this.prototype.__decoratorsClass__ = this.prototype.__decoratorsClass__.concat(decorators);
         }
-        component.displayName = componentClass['name'];
-        return component;
     }
-}
-
-
+} 
 
 
 //in fact ReactComponentBase is just a 'fake class that give use typing when creating 'spec'';
@@ -123,12 +70,6 @@ export interface ReactDecorator<C extends ReactComponent<any, any>> {
     componentWillUpdate?(nextProps: any, nextState: any): void;	
     componentDidUpdate?(nextProps: any, nextState: any): void;
     componentWillUnmount?():void;	
-}
-
-
-
-export interface Factory<P,C> {
-    (protperties?: P, ...comp: any[]) : C;
 }
 
 

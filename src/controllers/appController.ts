@@ -4,25 +4,25 @@ import ObserveUtils =  require('observe-utils');
 import Utils = require('../utils/utils');
 import Todo = require('../model/todo');
 import routes = require('../routes');
-import app = require('../views/todoApp');
-import item = require('../views/todoItem');
+import TodoApp = require('../views/todoApp');
+import TodoItem = require('../views/todoItem');
 
 class TodoAppController {
     
     
-    private application: app.TodoAppClass;
+    private application: TodoApp;
     
     constructor(
         public todos: ObserveUtils.List<Todo>
     ){ }
     
     componentDidMount(component: any) {
-        if (component.displayName === app.TodoAppClass['name']) {
+        if (component instanceof TodoApp) {
             this.application = component;
             this.application.onCreate = this.createTodo;
             this.application.onToggleAll = this.toggleAll;
         } else {
-            var item: item.TodoItemClass = component;
+            var item: TodoItem = component;
             item.onDestroy = this.destroy;
             item.onEdit = this.edit;
             item.onToggle = this.toggle;
@@ -31,12 +31,12 @@ class TodoAppController {
     }
     
     componentWillUnmount(component: any) {
-        if (component.displayName === app.TodoAppClass['name']) {
+        if (component instanceof TodoApp) {
             this.application.onCreate = null;
             this.application.onToggleAll = null;
             this.application = null;
         } else {
-            var item: item.TodoItemClass = component;
+            var item: TodoItem = component;
             item.onDestroy = null;
             item.onEdit = null;
             item.onToggle = null;

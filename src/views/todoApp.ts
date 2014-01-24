@@ -6,25 +6,20 @@ import ReactTypescript = require('../utils/react-typescript');
 import ReactControls = require('../utils/react-controller');
 import Todo = require('../model/todo');
 import routes = require('../routes');
-import todoItem = require('./todoItem');
-import footer = require('./footer');
+import TodoItem = require('./todoItem');
+import TodoFooter = require('./footer');
 
-var TodoItem = todoItem.TodoItem;
-var TodoFooter = footer.TodoFooter;
 
 var html = React.DOM;
 var ENTER_KEY = 13;   
 
-export class TodoAppProps {
-    todos: ObserveUtils.List<Todo>;
-    nowShowing: string;
-}
 
-export class TodoAppState {
-    editing: string;
-}
-
-export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProps, TodoAppState> {
+class TodoApp extends ReactTypescript.ReactComponentBase<{
+        todos: ObserveUtils.List<Todo>;
+        nowShowing: string;
+    }, { 
+        editing: string; 
+    }> {
     
     
     onCreate: (title: string) => void;
@@ -64,7 +59,7 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProp
     }
     
     render() {
-        var footer: footer.TodoFooterClass = null,
+        var footer: TodoFooter = null,
             main: React.ReactComponent<any, any> = null,
             todos = this.props.todos,
             shownTodos = todos.filter((todo) => {
@@ -79,7 +74,7 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProp
             });
 
         var todoItems = shownTodos.map(function (todo) {
-            return TodoItem({
+            return new TodoItem({
                 key: todo.id,
                 todo: todo,
                 editing: this.state.editing === todo.id,
@@ -93,7 +88,7 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProp
 
 
         if (activeTodoCount || completedCount) {
-            footer = TodoFooter({ 
+            footer = new TodoFooter({ 
                 nowShowing: this.props.nowShowing, 
                 activeTodoCount: activeTodoCount,
                 completedCount : completedCount
@@ -133,9 +128,6 @@ export class TodoAppClass extends ReactTypescript.ReactComponentBase<TodoAppProp
     }
 }
 
-export var TodoApp = ReactTypescript.registerComponent<TodoAppClass, TodoAppProps>(
-        TodoAppClass, 
-        ObserverDecorator, 
-        ReactControls.ControlledDecorator
-);
-
+TodoApp.decorate(ObserverDecorator, ReactControls.ControlledDecorator);
+TodoApp.register();
+export = TodoApp;

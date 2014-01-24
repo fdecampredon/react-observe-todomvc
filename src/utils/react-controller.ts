@@ -21,7 +21,7 @@ export interface Controller<C extends ReactTypescript.ReactComponent<any, any>> 
 
 export class ControllerRegistry {
     private controlMap : { [view:string]: Controller<ReactTypescript.ReactComponent<any, any>>} = {}
-    registerController<C extends ReactTypescript.ReactComponent<any, any>>(componentClass: { new(): C; prototype: C }, controller: Controller<C>) {
+    registerController<C extends ReactTypescript.ReactComponent<any, any>>(componentClass: { new(props: any, ...rest: any[]): C; prototype: C }, controller: Controller<C>) {
         this.controlMap[componentClass['name']] = controller;
     }
     
@@ -49,14 +49,14 @@ export class ControlledDecorator implements ReactTypescript.ReactDecorator<React
     ){}
     
     componentDidMount() {
-        var controller = ControllerRegistry.instance.getController(this.component.displayName);
+        var controller = ControllerRegistry.instance.getController(this.component['constructor'].name);
         if (controller) {
             controller.componentDidMount(this.component)
         }
     }
     
     componentWillUnmount() {
-        var controller = ControllerRegistry.instance.getController(this.component.displayName);
+        var controller = ControllerRegistry.instance.getController(this.component['constructor'].name);
         if (controller) {
             controller.componentWillUnmount(this.component)
         }
