@@ -18441,9 +18441,9 @@ var ModelWrapper = require('./utils/model-wrapper');
 var control = require('./utils/react-controller');
 var FooterController = require('./controllers/footerController');
 var TodoAppController = require('./controllers/appController');
-var app = require('./views/todoApp');
-var footer = require('./views/footer');
-var item = require('./views/todoItem');
+var TodoApp = require('./views/todoApp');
+var TodoFooter = require('./views/footer');
+var TodoItem = require('./views/todoItem');
 
 window.WeakMap = require('weak-map');
 if (typeof Object.observe !== 'function') {
@@ -18479,9 +18479,9 @@ registry.modelWrapper.addChangeHandler(function () {
 });
 
 var appContoller = new TodoAppController(todos);
-control.ControllerRegistry.instance.registerController(footer.TodoFooterClass, new FooterController(todos));
-control.ControllerRegistry.instance.registerController(app.TodoAppClass, appContoller);
-control.ControllerRegistry.instance.registerController(item.TodoItemClass, appContoller);
+control.ControllerRegistry.instance.registerController(TodoFooter, new FooterController(todos));
+control.ControllerRegistry.instance.registerController(TodoApp, appContoller);
+control.ControllerRegistry.instance.registerController(TodoItem, appContoller);
 
 var router = new Router({
     '/': function () {
@@ -18496,7 +18496,7 @@ var router = new Router({
 });
 router.init();
 
-var application = app.TodoApp(rootModel);
+var application = new TodoApp(rootModel);
 React.renderComponent(application, document.getElementById('todoapp'));
 React.renderComponent(html.div(null, html.p(null, 'Double-click to edit a todo'), html.p(null, 'Created by ', html.a({ href: 'http://github.com/petehunt/' }, 'petehunt')), html.p(null, 'Part of ', html.a({ href: 'http://todomvc.com' }, 'TodoMVC'))), document.getElementById('info'));
 
@@ -18506,7 +18506,8 @@ var ObserveUtils = require('observe-utils');
 var Utils = require('../utils/utils');
 var Todo = require('../model/todo');
 
-var app = require('../views/todoApp');
+var TodoApp = require('../views/todoApp');
+var TodoItem = require('../views/todoItem');
 
 var TodoAppController = (function () {
     function TodoAppController(todos) {
@@ -18541,7 +18542,7 @@ var TodoAppController = (function () {
         };
     }
     TodoAppController.prototype.componentDidMount = function (component) {
-        if (component.displayName === app.TodoAppClass['name']) {
+        if (component instanceof TodoApp) {
             this.application = component;
             this.application.onCreate = this.createTodo;
             this.application.onToggleAll = this.toggleAll;
@@ -18555,7 +18556,7 @@ var TodoAppController = (function () {
     };
 
     TodoAppController.prototype.componentWillUnmount = function (component) {
-        if (component.displayName === app.TodoAppClass['name']) {
+        if (component instanceof TodoApp) {
             this.application.onCreate = null;
             this.application.onToggleAll = null;
             this.application = null;
@@ -18572,9 +18573,10 @@ var TodoAppController = (function () {
 
 module.exports = TodoAppController;
 
-},{"../model/todo":139,"../utils/utils":146,"../views/todoApp":148,"observe-utils":4}],138:[function(require,module,exports){
+},{"../model/todo":139,"../utils/utils":146,"../views/todoApp":148,"../views/todoItem":149,"observe-utils":4}],138:[function(require,module,exports){
 'use strict';
 var Todo = require('../model/todo');
+var TodoFooter = require('../views/footer');
 
 var FooterController = (function () {
     function FooterController(todos) {
@@ -18606,7 +18608,7 @@ var FooterController = (function () {
 
 module.exports = FooterController;
 
-},{"../model/todo":139}],139:[function(require,module,exports){
+},{"../model/todo":139,"../views/footer":147}],139:[function(require,module,exports){
 'use strict';
 var ObserveUtils = require('observe-utils');
 
@@ -18862,14 +18864,14 @@ var ControlledDecorator = (function () {
         this.component = component;
     }
     ControlledDecorator.prototype.componentDidMount = function () {
-        var controller = ControllerRegistry.instance.getController(this.component.displayName);
+        var controller = ControllerRegistry.instance.getController(this.component['constructor'].name);
         if (controller) {
             controller.componentDidMount(this.component);
         }
     };
 
     ControlledDecorator.prototype.componentWillUnmount = function () {
-        var controller = ControllerRegistry.instance.getController(this.component.displayName);
+        var controller = ControllerRegistry.instance.getController(this.component['constructor'].name);
         if (controller) {
             controller.componentWillUnmount(this.component);
         }
@@ -18883,29 +18885,39 @@ exports.ControlledDecorator = ControlledDecorator;
 var React = require('react/addons');
 
 var ReactComponentBase = (function () {
-    function ReactComponentBase() {
+    function ReactComponentBase(props) {
+        var childen = [];
+        for (var _i = 0; _i < (arguments.length - 1); _i++) {
+            childen[_i] = arguments[_i + 1];
+        }
+        this.construct.apply(this, arguments);
     }
     ReactComponentBase.prototype.getDOMNode = function () {
         return null;
     };
 
-    ReactComponentBase.prototype.setProps = function (nextProps) {
+    ReactComponentBase.register = function () {
+        if (this === ReactComponentBase) {
+            throw new Error('ReactComponentBase should not be registred');
+        }
+        var spec = copy(this.prototype);
+        delete spec['constructor'];
+        var componentFactory = React.createClass(spec);
+        this.prototype = componentFactory.componentConstructor.prototype;
+        this.prototype['constructor'] = this;
     };
 
-    ReactComponentBase.prototype.replaceProps = function (nextProps) {
-    };
-
-    ReactComponentBase.prototype.transferPropsTo = function (target) {
-        return target;
-    };
-
-    ReactComponentBase.prototype.setState = function (nextProps) {
-    };
-
-    ReactComponentBase.prototype.replaceState = function (nextProps) {
-    };
-
-    ReactComponentBase.prototype.forceUpdate = function (callback) {
+    ReactComponentBase.decorate = function () {
+        var decorators = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            decorators[_i] = arguments[_i + 0];
+        }
+        if (!this.prototype.__decoratorsClass__) {
+            this.prototype.mixins = (this.prototype.mixins || []).concat(DecoratorRunnerMixin.prototype);
+            this.prototype.__decoratorsClass__ = decorators;
+        } else {
+            this.prototype.__decoratorsClass__ = this.prototype.__decoratorsClass__.concat(decorators);
+        }
     };
     return ReactComponentBase;
 })();
@@ -18991,32 +19003,6 @@ var DecoratorRunnerMixin = (function () {
     return DecoratorRunnerMixin;
 })();
 
-function registerComponent(componentClass) {
-    var decorators = [];
-    for (var _i = 0; _i < (arguments.length - 1); _i++) {
-        decorators[_i] = arguments[_i + 1];
-    }
-    var mixins = (componentClass.prototype.mixins || []).slice(0);
-    if (decorators.length) {
-        mixins.push(DecoratorRunnerMixin.prototype);
-    }
-
-    var spec = copy(componentClass.prototype);
-    spec.mixins = mixins;
-    delete spec['constructor'];
-    var componentFactory = React.createClass(spec);
-    return function (properties) {
-        var component = componentFactory.apply(this, arguments);
-        componentClass.call(component);
-        if (decorators.length) {
-            component.__decoratorsClass__ = decorators;
-        }
-        component.displayName = componentClass['name'];
-        return component;
-    };
-}
-exports.registerComponent = registerComponent;
-
 },{"react/addons":6}],146:[function(require,module,exports){
 'use strict';
 function uuid() {
@@ -19076,16 +19062,16 @@ var routes = require('../routes');
 
 var html = React.DOM;
 
-var TodoFooterClass = (function (_super) {
-    __extends(TodoFooterClass, _super);
-    function TodoFooterClass() {
+var TodoFooter = (function (_super) {
+    __extends(TodoFooter, _super);
+    function TodoFooter() {
         _super.apply(this, arguments);
     }
-    TodoFooterClass.prototype.shouldComponentUpdate = function (nextProps, nextState) {
+    TodoFooter.prototype.shouldComponentUpdate = function (nextProps, nextState) {
         return (this.props.nowShowing !== nextProps.nowShowing || this.props.activeTodoCount !== nextProps.activeTodoCount || this.props.completedCount !== nextProps.completedCount);
     };
 
-    TodoFooterClass.prototype.render = function () {
+    TodoFooter.prototype.render = function () {
         var activeTodoWord = Utils.pluralize(this.props.activeTodoCount, 'item');
         var clearButton = this.props.completedCount > 0 ? html.button({
             id: 'clear-completed',
@@ -19097,11 +19083,12 @@ var TodoFooterClass = (function (_super) {
 
         return html.footer({ id: 'footer' }, html.span({ id: 'todo-count' }, html.strong(null, this.props.activeTodoCount), ' ' + activeTodoWord + ' left'), html.ul({ id: 'filters' }, html.li(null, html.a({ href: '#/', className: show[routes.ALL_TODOS] }, 'All')), ' ', html.li(null, html.a({ href: '#/active', className: show[routes.ACTIVE_TODOS] }, 'Active')), ' ', html.li(null, html.a({ href: '#/completed', className: show[routes.COMPLETED_TODOS] }, 'Completed'))), clearButton);
     };
-    return TodoFooterClass;
+    return TodoFooter;
 })(ReactTypescript.ReactComponentBase);
-exports.TodoFooterClass = TodoFooterClass;
 
-exports.TodoFooter = ReactTypescript.registerComponent(TodoFooterClass, ReactControls.ControlledDecorator);
+TodoFooter.decorate(ReactControls.ControlledDecorator);
+TodoFooter.register();
+module.exports = TodoFooter;
 
 },{"../model/todo":139,"../routes":141,"../utils/react-controller":144,"../utils/react-typescript":145,"../utils/utils":146,"react/addons":6}],148:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
@@ -19117,49 +19104,32 @@ var ReactTypescript = require('../utils/react-typescript');
 var ReactControls = require('../utils/react-controller');
 var Todo = require('../model/todo');
 var routes = require('../routes');
-var todoItem = require('./todoItem');
-var footer = require('./footer');
-
-var TodoItem = todoItem.TodoItem;
-var TodoFooter = footer.TodoFooter;
+var TodoItem = require('./todoItem');
+var TodoFooter = require('./footer');
 
 var html = React.DOM;
 var ENTER_KEY = 13;
 
-var TodoAppProps = (function () {
-    function TodoAppProps() {
-    }
-    return TodoAppProps;
-})();
-exports.TodoAppProps = TodoAppProps;
-
-var TodoAppState = (function () {
-    function TodoAppState() {
-    }
-    return TodoAppState;
-})();
-exports.TodoAppState = TodoAppState;
-
-var TodoAppClass = (function (_super) {
-    __extends(TodoAppClass, _super);
-    function TodoAppClass() {
+var TodoApp = (function (_super) {
+    __extends(TodoApp, _super);
+    function TodoApp() {
         _super.apply(this, arguments);
     }
-    TodoAppClass.prototype.getInitialState = function () {
+    TodoApp.prototype.getInitialState = function () {
         return {
             editing: null
         };
     };
 
-    TodoAppClass.prototype.getNewField = function () {
+    TodoApp.prototype.getNewField = function () {
         return this.refs['newField'].getDOMNode();
     };
 
-    TodoAppClass.prototype.componentDidMount = function () {
+    TodoApp.prototype.componentDidMount = function () {
         this.getNewField().focus();
     };
 
-    TodoAppClass.prototype.handleNewTodoKeyDown = function (event) {
+    TodoApp.prototype.handleNewTodoKeyDown = function (event) {
         if (event.which !== ENTER_KEY) {
             return;
         }
@@ -19173,12 +19143,12 @@ var TodoAppClass = (function (_super) {
         return false;
     };
 
-    TodoAppClass.prototype.toggleAll = function (event) {
+    TodoApp.prototype.toggleAll = function (event) {
         var checked = event.target.checked;
         this.onToggleAll(checked);
     };
 
-    TodoAppClass.prototype.render = function () {
+    TodoApp.prototype.render = function () {
         var _this = this;
         var footer = null, main = null, todos = this.props.todos, shownTodos = todos.filter(function (todo) {
             switch (_this.props.nowShowing) {
@@ -19192,7 +19162,7 @@ var TodoAppClass = (function (_super) {
         });
 
         var todoItems = shownTodos.map(function (todo) {
-            return TodoItem({
+            return new TodoItem({
                 key: todo.id,
                 todo: todo,
                 editing: this.state.editing === todo.id
@@ -19205,7 +19175,7 @@ var TodoAppClass = (function (_super) {
         var completedCount = todos.length - activeTodoCount;
 
         if (activeTodoCount || completedCount) {
-            footer = TodoFooter({
+            footer = new TodoFooter({
                 nowShowing: this.props.nowShowing,
                 activeTodoCount: activeTodoCount,
                 completedCount: completedCount
@@ -19225,11 +19195,12 @@ var TodoAppClass = (function (_super) {
             onKeyDown: this.handleNewTodoKeyDown
         })), main, footer);
     };
-    return TodoAppClass;
+    return TodoApp;
 })(ReactTypescript.ReactComponentBase);
-exports.TodoAppClass = TodoAppClass;
 
-exports.TodoApp = ReactTypescript.registerComponent(TodoAppClass, ObserverDecorator, ReactControls.ControlledDecorator);
+TodoApp.decorate(ObserverDecorator, ReactControls.ControlledDecorator);
+TodoApp.register();
+module.exports = TodoApp;
 
 },{"../model/todo":139,"../routes":141,"../utils/observe-decorator":143,"../utils/react-controller":144,"../utils/react-typescript":145,"./footer":147,"./todoItem":149,"observe-utils":4,"react/addons":6}],149:[function(require,module,exports){
 'use strict';
@@ -19249,16 +19220,16 @@ var html = React.DOM;
 var ESCAPE_KEY = 27;
 var ENTER_KEY = 13;
 
-var TodoItemClass = (function (_super) {
-    __extends(TodoItemClass, _super);
-    function TodoItemClass() {
+var TodoItem = (function (_super) {
+    __extends(TodoItem, _super);
+    function TodoItem() {
         _super.apply(this, arguments);
     }
-    TodoItemClass.prototype.getEditField = function () {
+    TodoItem.prototype.getEditField = function () {
         return this.refs['editField'].getDOMNode();
     };
 
-    TodoItemClass.prototype.handleSubmit = function () {
+    TodoItem.prototype.handleSubmit = function () {
         if (this.props.editing) {
             var val = this.getEditField().value.trim();
             if (val) {
@@ -19271,7 +19242,7 @@ var TodoItemClass = (function (_super) {
         }
     };
 
-    TodoItemClass.prototype.componentDidUpdate = function () {
+    TodoItem.prototype.componentDidUpdate = function () {
         if (this.props.editing) {
             var node = this.getEditField();
             node.focus();
@@ -19280,11 +19251,11 @@ var TodoItemClass = (function (_super) {
         }
     };
 
-    TodoItemClass.prototype.handleEdit = function () {
+    TodoItem.prototype.handleEdit = function () {
         this.onEdit(this.props.todo.id);
     };
 
-    TodoItemClass.prototype.handleKeyDown = function (event) {
+    TodoItem.prototype.handleKeyDown = function (event) {
         if (event.keyCode === ESCAPE_KEY) {
             this.onEdit(null);
         } else if (event.keyCode === ENTER_KEY) {
@@ -19292,15 +19263,15 @@ var TodoItemClass = (function (_super) {
         }
     };
 
-    TodoItemClass.prototype.onToggleChange = function () {
+    TodoItem.prototype.onToggleChange = function () {
         this.onToggle(this.props.todo);
     };
 
-    TodoItemClass.prototype.destroyHandler = function () {
+    TodoItem.prototype.destroyHandler = function () {
         this.onDestroy(this.props.todo);
     };
 
-    TodoItemClass.prototype.render = function () {
+    TodoItem.prototype.render = function () {
         return html.li({
             className: React.addons.classSet({
                 completed: this.props.todo.completed,
@@ -19319,10 +19290,11 @@ var TodoItemClass = (function (_super) {
             onKeyDown: this.handleKeyDown
         }));
     };
-    return TodoItemClass;
+    return TodoItem;
 })(ReactTypescript.ReactComponentBase);
-exports.TodoItemClass = TodoItemClass;
 
-exports.TodoItem = ReactTypescript.registerComponent(TodoItemClass, ObserverDecorator, ReactControls.ControlledDecorator);
+TodoItem.decorate(ObserverDecorator, ReactControls.ControlledDecorator);
+TodoItem.register();
+module.exports = TodoItem;
 
 },{"../model/todo":139,"../utils/observe-decorator":143,"../utils/react-controller":144,"../utils/react-typescript":145,"react/addons":6}]},{},[136])

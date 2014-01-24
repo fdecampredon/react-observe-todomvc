@@ -10,9 +10,9 @@ import ModelWrapper = require('./utils/model-wrapper');
 import control = require('./utils/react-controller');
 import FooterController = require('./controllers/footerController');
 import TodoAppController = require('./controllers/appController');
-import app = require('./views/todoApp');
-import footer = require('./views/footer');
-import item = require('./views/todoItem');
+import TodoApp = require('./views/todoApp');
+import TodoFooter = require('./views/footer');
+import TodoItem = require('./views/todoItem');
 
 
 
@@ -57,10 +57,9 @@ registry.modelWrapper.addChangeHandler(() => {
 });
 
 var appContoller = new TodoAppController(todos);
-control.ControllerRegistry.instance.registerController(footer.TodoFooterClass, new FooterController(todos));
-control.ControllerRegistry.instance.registerController(app.TodoAppClass, appContoller);
-control.ControllerRegistry.instance.registerController(item.TodoItemClass, appContoller);
-
+control.ControllerRegistry.instance.registerController(TodoFooter, new FooterController(todos));
+control.ControllerRegistry.instance.registerController(TodoApp, appContoller);
+control.ControllerRegistry.instance.registerController(TodoItem, appContoller);
 
 var router: any = new Router({
     '/': function () {
@@ -75,7 +74,7 @@ var router: any = new Router({
 });
 router.init();
 
-var application = app.TodoApp(rootModel);
+var application: React.ReactComponent<any, any> = new TodoApp(rootModel);
 React.renderComponent(application, document.getElementById('todoapp'));
 React.renderComponent(html.div(
     null,

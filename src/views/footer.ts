@@ -9,13 +9,17 @@ import routes = require('../routes');
 import registry = require('../registry');
 var html = React.DOM;
 
-export interface TodoFooterProps {
-    nowShowing: string;
-    activeTodoCount: number;
-    completedCount: number;
+module TodoFooter {
+    export interface TodoFooterProps {
+        nowShowing: string;
+        activeTodoCount: number;
+        completedCount: number;
+    }
 }
 
-export class TodoFooterClass extends ReactTypescript.ReactComponentBase<TodoFooterProps, void> {
+import TodoFooterProps = TodoFooter.TodoFooterProps;
+
+class TodoFooter extends ReactTypescript.ReactComponentBase<TodoFooterProps, void> {
     
     
     onClearCompleted: () => void;
@@ -61,5 +65,6 @@ export class TodoFooterClass extends ReactTypescript.ReactComponentBase<TodoFoot
     }
 }
 
-
-export var TodoFooter = ReactTypescript.registerComponent<TodoFooterClass, TodoFooterProps>(TodoFooterClass, ReactControls.ControlledDecorator);
+TodoFooter.decorate(ReactControls.ControlledDecorator);
+TodoFooter.register();
+export = TodoFooter;
