@@ -35,8 +35,70 @@ export class ReactComponentBase<P, S> {
     forceUpdate(callback? : () => void) {
         
     }
+    
+    
+    static register() {
+        /*if (this === ReactComponentBase) {
+            throw new Error('ReactComponentBase should not be registred');
+        }
+        var spec = copy(this.prototype);
+        delete spec['constructor'];
+        var componentFactory: any  = (<any>React.createClass(<any>spec));
+        this.__factory__ = function (properties?: P) {
+            var component = componentFactory.apply(this, arguments);
+            this.call(component);
+            if (this.__decoratorsClass__ && this.__decoratorsClass__.length) {
+                component.__decoratorsClass__ = this.__decoratorsClass__;
+            }
+            component.displayName = this['name'];
+            return component;
+        }*/
+    }
+    
+    private static  __decoratorsClass__: { new(component: ReactComponentBase<any, any>): ReactDecorator<any> }[];
 } 
 
+
+
+export function decorate<C extends  ReactComponent<P, any>, P>(
+            componentClass: { new(): C; prototype: C; __decoratorsClass__:{ new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[] }, 
+            ...decorators: { new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[]
+        ): void  {
+    
+    if (!componentClass.__decoratorsClass__) {
+        componentClass.prototype.mixins = (componentClass.prototype.mixins || []).concat(DecoratorRunnerMixin.prototype);
+        componentClass.__decoratorsClass__ = decorators;
+    } else {
+        componentClass.__decoratorsClass__ = componentClass.__decoratorsClass__.concat(decorators);
+    }
+}
+
+
+export function registerComponent<C extends  ReactComponent<P, any>, P>(
+        componentClass: { new(): C; prototype: C; }, 
+        ...decorators: { new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[]
+    ): Factory<P,C> {
+    
+        
+    var mixins: React.ReactMixin<any, any>[] = (componentClass.prototype.mixins || []).slice(0);
+    if (decorators.length) {
+        mixins.push(DecoratorRunnerMixin.prototype);
+    }
+    
+    var spec = copy(componentClass.prototype);
+    spec.mixins = mixins;
+    delete spec['constructor'];
+    var componentFactory: Factory<P, C>  = (<any>React.createClass(spec));
+    return function (properties?: P) {
+        var component = componentFactory.apply(this, arguments);
+        componentClass.call(component);
+        if (decorators.length) {
+            component.__decoratorsClass__ = decorators;
+        }
+        component.displayName = componentClass['name'];
+        return component;
+    }
+}
 
 
 
@@ -147,31 +209,7 @@ class DecoratorRunnerMixin implements React.ReactMixin<any,any> {
 }
 
 
-export function registerComponent<C extends  ReactComponent<P, any>, P>(
-        componentClass: { new(): C; prototype: C; }, 
-        ...decorators: { new(component: C): ReactDecorator<C>; prototype: ReactDecorator<C> }[]
-    ): Factory<P,C> {
-    
-        
-    var mixins: React.ReactMixin<any, any>[] = (componentClass.prototype.mixins || []).slice(0);
-    if (decorators.length) {
-        mixins.push(DecoratorRunnerMixin.prototype);
-    }
-    
-    var spec = copy(componentClass.prototype);
-    spec.mixins = mixins;
-    delete spec['constructor'];
-    var componentFactory: Factory<P, C>  = (<any>React.createClass(spec));
-    return function (properties?: P) {
-        var component = componentFactory.apply(this, arguments);
-        componentClass.call(component);
-        if (decorators.length) {
-            component.__decoratorsClass__ = decorators;
-        }
-        component.displayName = componentClass['name'];
-        return component;
-    }
-}
+
     
 
 
