@@ -66,8 +66,8 @@ var Immutable = (function (){
     }
 
     function finalizeImmutable(target, parent, parentField) {
-        Object.defineProperty(target, '_parent', {value: parent});
-        Object.defineProperty(target, '_parentField', {value: parentField});
+        Object.defineProperty(target, '__parent', {value: parent});
+        Object.defineProperty(target, '__parentField', {value: parentField});
         Object.freeze(target);
         return target;
     }
@@ -84,11 +84,11 @@ var Immutable = (function (){
             } else {
                 if (isArr)  {
                     if (!Array.isArray(updates)) {
-                        throw new TypeError('the function passed to update should return an array, return value obtained :' + updates);
+                        throw new TypeError('the function passed to update should return an array, returned value :' + updates);
                     }
                 }
                 else if (typeof updates !== 'object') {
-                    throw new TypeError('the function passed to update should return an object, return value obtained :' + updates);
+                    throw new TypeError('the function passed to update should return an object, returned value :' + updates);
                 }
             }
         } else {
@@ -103,8 +103,8 @@ var Immutable = (function (){
         }
 
 
-        var parent = this._parent,
-            parentField = this._parentField,
+        var parent = this.__parent,
+            parentField = this.__parentField,
             result = isArr? updates : assign(Object.create(Object.getPrototypeOf(this)), this, updates);
 
         result = prepareImmutable(result);
