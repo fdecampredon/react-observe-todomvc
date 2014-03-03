@@ -187,13 +187,16 @@ var Immutable = (function (){
 
 
     function Immutable(data) {
-        var self = this;
-        this._data = createImmutable(data, {
+        var _changeListeners = [];
+        var _data = createImmutable(data, {
             get data() {},
             set data(value) {
-                self._data = value;
+                var prevData = _data;
+                _data = value;
                 setImmediate(function () {
-                    self.notifyChange();
+                    _changeListeners.forEach(function (listener) {
+                        listener(_data, prevData);
+                    });
                 });
             },
             update: function(func) {
@@ -201,37 +204,32 @@ var Immutable = (function (){
                 return this;
             }
         }, 'data');
-        this._changeListeners = [];
-    }
-
-    Immutable.prototype = {
-        constructor: Immutable,
-        get data() {
-            return this._data;
-        },
-
-        addChangeListener: function (callback) {
+        Object.defineProperty(this, 'data', {
+            get: function () {
+                return _data;
+            }
+        })
+        this.addChangeListener = function (callback) {
             if (typeof callback !== 'function') {
                 throw new TypeError('callback must be a function, given :' + callback);
             }
-            this._changeListeners.push(callback);
+            _changeListeners.push(callback);
         },
 
-        removeChangeListener: function (callback) {
+        this.removeChangeListener = function (callback) {
             if (typeof callback !== 'function') {
                 throw new TypeError('callback must be a function, given :' + callback);
             }
-            this._changeListeners = this._changeListeners.filter(function (listener) {
+            _changeListeners = this._changeListeners.filter(function (listener) {
                 return listener === callback;
             });
-        },
-
-        notifyChange: function (func) {
-            this._changeListeners.forEach(function (listener) {
-                listener();
-            });
         }
-    };
+        
+        this.removeAllListeners = function () {
+            _changeListeners = []
+        }
+    }
+
     
     
     return Immutable;

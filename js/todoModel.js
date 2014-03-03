@@ -22,9 +22,9 @@ var app = app || {};
         this.wrapper = new Immutable(Utils.store(key) || []);
 		this.todos = this.wrapper.data;
 		this.onChanges = [];
-        this.wrapper.addChangeListener(function () {
-            this.todos = this.wrapper.data;
-            Utils.store(this.key, this.todos);
+        this.wrapper.addChangeListener(function (todos) {
+            this.todos = todos;
+            Utils.store(this.key, todos);
         }.bind(this));
 	};
 
